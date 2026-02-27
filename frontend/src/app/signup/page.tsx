@@ -32,7 +32,7 @@ const PLANS: Record<
     name: string;
     monthlyPrice: number;
     annualPrice: number;
-    trialDays: number;
+
     badge?: string;
     features: { label: string; included: boolean }[];
   }
@@ -41,7 +41,7 @@ const PLANS: Record<
     name: "Solo",
     monthlyPrice: 10,
     annualPrice: 8,
-    trialDays: 7,
+
     features: [
       { label: "20 conversions / month", included: true },
       { label: "5 templates", included: true },
@@ -55,7 +55,7 @@ const PLANS: Record<
     name: "Team",
     monthlyPrice: 49,
     annualPrice: 39,
-    trialDays: 14,
+
     badge: "Most popular",
     features: [
       { label: "Unlimited conversions", included: true },
@@ -223,7 +223,7 @@ export default function SignupPage() {
                   Choose your plan
                 </h2>
                 <p className="mt-1.5 text-sm text-slate-500">
-                  Start with a free trial, cancel anytime
+                  Pick the plan that fits your needs
                 </p>
               </div>
 
@@ -289,9 +289,7 @@ export default function SignupPage() {
                           </span>
                           <span className="text-sm text-slate-500">/mo</span>
                         </div>
-                        <p className="mt-1 text-xs text-slate-500">
-                          {plan.trialDays}-day free trial
-                        </p>
+                        {/* price interval clarification */}
                       </div>
                       <ul className="space-y-2">
                         {plan.features.map((f) => (
@@ -408,8 +406,7 @@ export default function SignupPage() {
                     <div className="mb-6 inline-flex items-center gap-2 rounded-lg bg-emerald-50 border border-emerald-200 px-3 py-1.5">
                       <div className="h-2 w-2 rounded-full bg-emerald-500" />
                       <span className="text-sm font-medium text-emerald-800">
-                        {selectedPlan.name} plan — {selectedPlan.trialDays}-day
-                        free trial
+                        {selectedPlan.name} plan
                       </span>
                     </div>
                   )}
