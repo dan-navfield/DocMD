@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, File, Form, UploadFile, HTTPException
+from fastapi import APIRouter, Body, Depends, File, Form, UploadFile, HTTPException
+from fastapi.responses import PlainTextResponse
 from typing import Optional
 
 from app.dependencies import get_current_user, get_supabase_client, get_supabase_admin
@@ -72,6 +73,26 @@ async def get_document(
     service: DocumentService = Depends(get_service),
 ):
     return await service.get_document(document_id, user["id"])
+
+
+@router.get("/{document_id}/content")
+async def get_document_content(
+    document_id: str,
+    user: dict = Depends(get_current_user),
+    service: DocumentService = Depends(get_service),
+):
+    content = await service.get_content(document_id, user["id"])
+    return PlainTextResponse(content, media_type="text/markdown")
+
+
+@router.put("/{document_id}/content", response_model=DocumentResponse)
+async def update_document_content(
+    document_id: str,
+    markdown: str = Body(..., media_type="text/markdown"),
+    user: dict = Depends(get_current_user),
+    service: DocumentService = Depends(get_service),
+):
+    return await service.update_content(document_id, user["id"], markdown)
 
 
 @router.patch("/{document_id}", response_model=DocumentResponse)

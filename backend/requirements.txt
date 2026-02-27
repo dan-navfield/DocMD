@@ -12,4 +12,6 @@ openai==1.51.0
 pydantic==2.9.2
 pydantic-settings==2.5.2
 python-jose[cryptography]==3.3.0
+fonttools==4.55.3
+stripe==11.4.1
 # mcp>=1.0.0  # Requires Python 3.10+. Install separately if needed.

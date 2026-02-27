@@ -1,18 +1,9 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Optional
+from typing import Any, Optional
 
 from pydantic import BaseModel, Field
-
-
-class HeadingMapping(BaseModel):
-    h1: str = "Heading 1"
-    h2: str = "Heading 2"
-    h3: str = "Heading 3"
-    h4: str = "Heading 4"
-    h5: str = "Heading 5"
-    h6: str = "Heading 6"
 
 
 class TableMapping(BaseModel):
@@ -21,7 +12,13 @@ class TableMapping(BaseModel):
 
 
 class MappingRules(BaseModel):
-    heading: HeadingMapping = Field(default_factory=HeadingMapping)
+    # Headings: keys are "1"-"6", values are Word style names
+    heading: dict[str, str] = Field(default_factory=lambda: {
+        "1": "Heading 1", "2": "Heading 2", "3": "Heading 3",
+        "4": "Heading 4", "5": "Heading 5", "6": "Heading 6",
+    })
+    document_title: str = ""  # Style for the document's H1 title (e.g. "Cover heading")
+    document_subtitle: str = ""  # Style for cover subtitle (cleared on conversion)
     paragraph: str = "Normal"
     list_bullet: str = "List Bullet"
     list_bullet_2: str = "List Bullet 2"

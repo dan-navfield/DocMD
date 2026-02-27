@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { LayoutTemplate, Plus, Trash2, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,6 +18,7 @@ import { templates as templatesApi } from "@/lib/api";
 import type { Template } from "@/lib/types";
 
 export default function TemplatesPage() {
+  const router = useRouter();
   const [templates, setTemplates] = useState<Template[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -145,7 +147,11 @@ export default function TemplatesPage() {
       ) : (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {templates.map((template) => (
-            <Card key={template.id} className="hover:shadow-md transition-shadow">
+            <Card
+              key={template.id}
+              className="hover:shadow-md transition-shadow cursor-pointer"
+              onClick={() => router.push(`/templates/${template.id}`)}
+            >
               <CardHeader className="pb-2">
                 <div className="flex items-start justify-between">
                   <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100">
@@ -154,7 +160,7 @@ export default function TemplatesPage() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => handleDelete(template.id)}
+                    onClick={(e) => { e.stopPropagation(); handleDelete(template.id); }}
                     className="h-8 w-8 p-0 text-slate-400 hover:text-red-500"
                   >
                     <Trash2 className="h-3.5 w-3.5" />
@@ -171,7 +177,7 @@ export default function TemplatesPage() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => handleViewStyles(template.id)}
+                    onClick={(e) => { e.stopPropagation(); handleViewStyles(template.id); }}
                     className="h-7 text-xs"
                   >
                     <Eye className="mr-1 h-3 w-3" />

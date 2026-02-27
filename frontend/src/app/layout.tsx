@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { IconNav } from "@/components/layout/icon-nav";
-import { Sidebar } from "@/components/layout/sidebar";
-import { TopBar } from "@/components/layout/top-bar";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import { AuthProvider } from "@/components/auth-provider";
+import { AppShell } from "@/components/app-shell";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,18 +19,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <TooltipProvider>
-          <div className="flex h-screen overflow-hidden">
-            <IconNav />
-            <Sidebar />
-            <div className="flex flex-1 flex-col overflow-hidden">
-              <TopBar />
-              <main className="flex-1 overflow-y-auto bg-slate-50 p-6">
-                {children}
-              </main>
-            </div>
-          </div>
-        </TooltipProvider>
+        <AuthProvider>
+          <AppShell>{children}</AppShell>
+        </AuthProvider>
       </body>
     </html>
   );

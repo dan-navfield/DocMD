@@ -30,3 +30,15 @@ class TemplateResponse(BaseModel):
 class TemplateStylesResponse(BaseModel):
     template_id: str
     styles: list[str]
+    used_styles: list[str] = []
+
+
+class StyleMapEntry(BaseModel):
+    index: int
+    text: str
+    style: str
+
+
+class TemplateStyleMapResponse(BaseModel):
+    template_id: str
+    paragraphs: list[StyleMapEntry]

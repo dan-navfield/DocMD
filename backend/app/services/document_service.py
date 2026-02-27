@@ -119,6 +119,46 @@ class DocumentService:
             raise HTTPException(status_code=404, detail="Document not found")
         await self.audit.log(user_id, "document.deleted", "document", document_id)
 
+    async def get_content(self, document_id: str, user_id: str) -> str:
+        doc = await self.get_document(document_id, user_id)
+        path = doc.get("markdown_storage_path")
+        if not path:
+            raise HTTPException(status_code=404, detail="No markdown content stored")
+        data = self.supabase.storage.from_("markdown-sources").download(path)
+        return data.decode("utf-8")
+
+    async def update_content(self, document_id: str, user_id: str, markdown: str) -> dict:
+        doc = await self.get_document(document_id, user_id)
+        new_version = doc["current_version"] + 1
+        new_path = f"{user_id}/{document_id}/v{new_version}.md"
+
+        # Upload new version to storage
+        self.supabase.storage.from_("markdown-sources").upload(
+            new_path, markdown.encode("utf-8"), {"content-type": "text/markdown"}
+        )
+
+        # Create version record
+        self.supabase.table("document_versions").insert({
+            "document_id": document_id,
+            "version_number": new_version,
+            "markdown_storage_path": new_path,
+            "created_by": user_id,
+        }).execute()
+
+        # Update document record
+        result = (
+            self.supabase.table("documents")
+            .update({
+                "current_version": new_version,
+                "markdown_storage_path": new_path,
+            })
+            .eq("id", document_id)
+            .execute()
+        )
+
+        await self.audit.log(user_id, "document.content_updated", "document", document_id)
+        return result.data[0]
+
     async def list_versions(self, document_id: str, user_id: str) -> list[dict]:
         # Verify access
         await self.get_document(document_id, user_id)

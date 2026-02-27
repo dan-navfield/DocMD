@@ -4,9 +4,10 @@ import hashlib
 from typing import Optional
 
 from fastapi import Depends, Header, HTTPException, status
-from supabase import Client, create_client
+from supabase import Client
 
 from app.config import Settings, get_settings
+from app.lib.supabase import create_client
 
 
 def get_supabase_client(settings: Settings = Depends(get_settings)) -> Client:

@@ -8,6 +8,9 @@ import type {
   Conversion,
   Export,
   ClassifyResponse,
+  Font,
+  Subscription,
+  SubscriptionUsage,
 } from "./types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
@@ -48,6 +51,22 @@ export const documents = {
     return request<DocMDDocument[]>(`/api/documents${query}`);
   },
   get: (id: string) => request<DocMDDocument>(`/api/documents/${id}`),
+  getContent: async (id: string): Promise<string> => {
+    const headers = await getAuthHeaders();
+    const res = await fetch(`${API_URL}/api/documents/${id}/content`, { headers });
+    if (!res.ok) throw new Error("Failed to fetch content");
+    return res.text();
+  },
+  updateContent: async (id: string, markdown: string): Promise<DocMDDocument> => {
+    const headers = await getAuthHeaders();
+    const res = await fetch(`${API_URL}/api/documents/${id}/content`, {
+      method: "PUT",
+      headers: { ...headers, "Content-Type": "text/markdown" },
+      body: markdown,
+    });
+    if (!res.ok) throw new Error("Failed to save content");
+    return res.json();
+  },
   create: async (data: FormData) => {
     const headers = await getAuthHeaders();
     delete (headers as Record<string, string>)["Content-Type"];
@@ -70,16 +89,29 @@ export const documents = {
 
 // Conversions
 export const conversions = {
-  convert: (documentId: string, templateId: string, mappingId: string) =>
+  convert: (documentId: string, templateId: string, mappingId: string, mappingRulesOverride?: Record<string, unknown>) =>
     request<Conversion>(`/api/documents/${documentId}/convert`, {
       method: "POST",
       body: JSON.stringify({
         template_id: templateId,
         mapping_id: mappingId,
+        ...(mappingRulesOverride ? { mapping_rules_override: mappingRulesOverride } : {}),
       }),
     }),
   get: (id: string) => request<Conversion>(`/api/conversions/${id}`),
   downloadUrl: (id: string) => `${API_URL}/api/conversions/${id}/download`,
+  download: async (id: string): Promise<Blob> => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.access_token) throw new Error("Not authenticated");
+    const res = await fetch(`${API_URL}/api/conversions/${id}/download`, {
+      headers: { Authorization: `Bearer ${session.access_token}` },
+    });
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({ detail: res.statusText }));
+      throw new Error(error.detail || "Download failed");
+    }
+    return res.blob();
+  },
 };
 
 // Exports
@@ -108,11 +140,33 @@ export const templates = {
     return res.json() as Promise<Template>;
   },
   getStyles: (id: string) =>
-    request<{ template_id: string; styles: string[] }>(
+    request<{ template_id: string; styles: string[]; used_styles: string[] }>(
       `/api/templates/${id}/styles`
     ),
+  getStyleMap: (id: string) =>
+    request<{ template_id: string; paragraphs: { index: number; text: string; style: string }[] }>(
+      `/api/templates/${id}/style-map`
+    ),
+  download: async (id: string): Promise<ArrayBuffer> => {
+    const headers = await getAuthHeaders();
+    const res = await fetch(`${API_URL}/api/templates/${id}/download`, { headers });
+    if (!res.ok) throw new Error("Failed to download template");
+    return res.arrayBuffer();
+  },
+  preview: async (id: string): Promise<string> => {
+    const headers = await getAuthHeaders();
+    const res = await fetch(`${API_URL}/api/templates/${id}/preview`, { headers });
+    if (!res.ok) throw new Error("Failed to generate preview");
+    const blob = await res.blob();
+    return URL.createObjectURL(blob);
+  },
   delete: (id: string) =>
     request(`/api/templates/${id}`, { method: "DELETE" }),
+  getOnlyofficeConfig: (id: string) =>
+    request<{
+      config: Record<string, unknown>;
+      onlyoffice_url: string;
+    }>(`/api/templates/${id}/onlyoffice-config`),
 };
 
 // Mappings
@@ -197,4 +251,79 @@ export const settings = {
     ),
   deleteApiKey: (id: string) =>
     request(`/api/settings/api-keys/${id}`, { method: "DELETE" }),
+};
+
+// Fonts
+export const fonts = {
+  list: () => request<Font[]>("/api/fonts"),
+  upload: async (files: File[]): Promise<{ fonts: Font[]; onlyoffice_refreshed: boolean }> => {
+    const headers = await getAuthHeaders();
+    delete (headers as Record<string, string>)["Content-Type"];
+    const formData = new FormData();
+    files.forEach((f) => formData.append("files", f));
+    const res = await fetch(`${API_URL}/api/fonts`, {
+      method: "POST",
+      headers,
+      body: formData,
+    });
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({ detail: res.statusText }));
+      throw new Error(error.detail || "Upload failed");
+    }
+    return res.json();
+  },
+  delete: (id: string) =>
+    request(`/api/fonts/${id}`, { method: "DELETE" }),
+  fetchFile: async (id: string): Promise<Blob> => {
+    const headers = await getAuthHeaders();
+    const res = await fetch(`${API_URL}/api/fonts/${id}/file`, { headers });
+    if (!res.ok) throw new Error("Failed to fetch font file");
+    return res.blob();
+  },
+};
+
+// Onboarding
+export const onboarding = {
+  getStatus: () =>
+    request<{ completed: boolean; completed_at: string | null }>(
+      "/api/onboarding/status"
+    ),
+  markComplete: () =>
+    request<{ completed: boolean; completed_at: string | null }>(
+      "/api/onboarding/complete",
+      { method: "POST" }
+    ),
+  seedMapping: (data: { template_id?: string; name?: string }) =>
+    request<{ mapping_id: string; mapping: Record<string, unknown> }>(
+      "/api/onboarding/seed-mapping",
+      { method: "POST", body: JSON.stringify(data) }
+    ),
+};
+
+// Billing
+export const billing = {
+  getSubscription: () =>
+    request<Subscription>("/api/billing/subscription"),
+  getUsage: () =>
+    request<SubscriptionUsage>("/api/billing/usage"),
+  createCheckoutSession: (
+    tier: string,
+    interval: string = "month",
+    successUrl?: string,
+    cancelUrl?: string
+  ) =>
+    request<{ checkout_url: string }>("/api/billing/checkout-session", {
+      method: "POST",
+      body: JSON.stringify({
+        tier,
+        interval,
+        success_url: successUrl,
+        cancel_url: cancelUrl,
+      }),
+    }),
+  createPortalSession: (returnUrl?: string) =>
+    request<{ portal_url: string }>("/api/billing/portal-session", {
+      method: "POST",
+      body: JSON.stringify({ return_url: returnUrl }),
+    }),
 };

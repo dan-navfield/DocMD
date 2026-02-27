@@ -20,6 +20,23 @@ class Settings(BaseSettings):
     
     # CORS
     frontend_url: str = "http://localhost:3000"
+
+    # ONLYOFFICE Document Server
+    onlyoffice_url: str = "http://localhost:8080"
+    onlyoffice_jwt_secret: str = "docmd-onlyoffice-jwt-secret"
+    onlyoffice_callback_base_url: str = "http://host.docker.internal:8000"
+    onlyoffice_container_name: str = "docmd-onlyoffice"
+
+    # Stripe
+    stripe_secret_key: str = ""
+    stripe_webhook_secret: str = ""
+    stripe_solo_monthly_price_id: str = ""
+    stripe_solo_annual_price_id: str = ""
+    stripe_team_monthly_price_id: str = ""
+    stripe_team_annual_price_id: str = ""
+
+    # Fonts — path relative to project root (one level up from backend/)
+    fonts_dir: str = "../fonts"
     
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
 

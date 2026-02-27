@@ -17,6 +17,7 @@ class ConversionStatus(str, Enum):
 class ConversionCreate(BaseModel):
     template_id: str
     mapping_id: str
+    mapping_rules_override: Optional[dict] = None
 
 
 class ConversionResponse(BaseModel):

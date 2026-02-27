@@ -6,6 +6,7 @@ dist/
 build/
 .venv/
 venv/
+venv-*/
 env/
 
 # Node
@@ -33,3 +34,4 @@ docker-compose.override.yml
 
 # Supabase
 supabase/.temp/
+.mcp.json

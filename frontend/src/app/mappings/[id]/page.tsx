@@ -2,31 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, Save } from "lucide-react";
+import { ArrowLeft, Save, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { mappings as mappingsApi } from "@/lib/api";
-import type { Mapping, MappingRules } from "@/lib/types";
-
-const MAPPING_FIELDS = [
-  { key: "heading.1", label: "Heading 1", group: "Headings" },
-  { key: "heading.2", label: "Heading 2", group: "Headings" },
-  { key: "heading.3", label: "Heading 3", group: "Headings" },
-  { key: "heading.4", label: "Heading 4", group: "Headings" },
-  { key: "heading.5", label: "Heading 5", group: "Headings" },
-  { key: "heading.6", label: "Heading 6", group: "Headings" },
-  { key: "paragraph", label: "Paragraph", group: "Body" },
-  { key: "list_bullet", label: "Bullet List", group: "Lists" },
-  { key: "list_bullet_2", label: "Bullet List (L2)", group: "Lists" },
-  { key: "list_bullet_3", label: "Bullet List (L3)", group: "Lists" },
-  { key: "list_ordered", label: "Ordered List", group: "Lists" },
-  { key: "list_ordered_2", label: "Ordered List (L2)", group: "Lists" },
-  { key: "list_ordered_3", label: "Ordered List (L3)", group: "Lists" },
-  { key: "code_block", label: "Code Block", group: "Special" },
-  { key: "blockquote", label: "Blockquote", group: "Special" },
-  { key: "table.style", label: "Table Style", group: "Special" },
-];
+import { mappings as mappingsApi, templates as templatesApi } from "@/lib/api";
+import { MAPPING_FIELDS, bestStyleMatch, flattenRules, unflattenRules } from "@/lib/mapping-fields";
+import type { Mapping } from "@/lib/types";
 
 export default function MappingEditorPage() {
   const params = useParams();
@@ -35,62 +16,46 @@ export default function MappingEditorPage() {
 
   const [mapping, setMapping] = useState<Mapping | null>(null);
   const [rules, setRules] = useState<Record<string, string>>({});
+  const [styles, setStyles] = useState<string[]>([]);
+  const [loadingStyles, setLoadingStyles] = useState(false);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     mappingsApi.get(mappingId).then((m) => {
       setMapping(m);
-      // Flatten rules for editing
-      const flat: Record<string, string> = {};
-      const r = m.rules as MappingRules;
-      if (r.heading) {
-        Object.entries(r.heading).forEach(([k, v]) => {
-          flat[`heading.${k}`] = v;
-        });
-      }
-      flat.paragraph = r.paragraph || "Normal";
-      flat.list_bullet = r.list_bullet || "List Bullet";
-      flat.list_bullet_2 = r.list_bullet_2 || "List Bullet 2";
-      flat.list_bullet_3 = r.list_bullet_3 || "List Bullet 3";
-      flat.list_ordered = r.list_ordered || "List Number";
-      flat.list_ordered_2 = r.list_ordered_2 || "List Number 2";
-      flat.list_ordered_3 = r.list_ordered_3 || "List Number 3";
-      flat.code_block = r.code_block || "Code";
-      flat.blockquote = r.blockquote || "Quote";
-      flat["table.style"] = r.table?.style || "Table Grid";
+      const flat = flattenRules(m.rules);
       setRules(flat);
+
+      // Fetch styles from the linked template
+      if (m.template_id) {
+        setLoadingStyles(true);
+        templatesApi
+          .getStyles(m.template_id)
+          .then((res) => {
+            setStyles(res.styles);
+            // Auto-match empty fields to best style matches
+            setRules((prev) => {
+              const updated = { ...prev };
+              for (const field of MAPPING_FIELDS) {
+                if (!updated[field.key]) {
+                  const match = bestStyleMatch(field.key, res.styles);
+                  if (match) updated[field.key] = match;
+                }
+              }
+              return updated;
+            });
+          })
+          .catch(console.error)
+          .finally(() => setLoadingStyles(false));
+      }
     });
   }, [mappingId]);
 
   const handleSave = async () => {
     setSaving(true);
     try {
-      const newRules = {
-        heading: {
-          "1": rules["heading.1"] || "Heading 1",
-          "2": rules["heading.2"] || "Heading 2",
-          "3": rules["heading.3"] || "Heading 3",
-          "4": rules["heading.4"] || "Heading 4",
-          "5": rules["heading.5"] || "Heading 5",
-          "6": rules["heading.6"] || "Heading 6",
-        },
-        paragraph: rules.paragraph,
-        list_bullet: rules.list_bullet,
-        list_bullet_2: rules.list_bullet_2,
-        list_bullet_3: rules.list_bullet_3,
-        list_ordered: rules.list_ordered,
-        list_ordered_2: rules.list_ordered_2,
-        list_ordered_3: rules.list_ordered_3,
-        code_block: rules.code_block,
-        blockquote: rules.blockquote,
-        table: {
-          style: rules["table.style"],
-          header_row: true,
-        },
-        page_break_before: [],
-        metadata_mapping: {},
-      };
-      await mappingsApi.update(mappingId, { rules: newRules as unknown as MappingRules });
+      const newRules = unflattenRules(rules);
+      await mappingsApi.update(mappingId, { rules: newRules });
       router.push("/mappings");
     } catch (e) {
       console.error(e);
@@ -108,6 +73,7 @@ export default function MappingEditorPage() {
   }
 
   const groups = [...new Set(MAPPING_FIELDS.map((f) => f.group))];
+  const hasStyles = styles.length > 0;
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
@@ -132,25 +98,70 @@ export default function MappingEditorPage() {
         </Button>
       </div>
 
+      {!mapping.template_id && (
+        <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          This mapping has no linked template. Link a template to see available Word styles as dropdown options.
+        </div>
+      )}
+
       {groups.map((group) => (
         <Card key={group}>
           <CardHeader className="pb-3">
             <CardTitle className="text-base">{group}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            {MAPPING_FIELDS.filter((f) => f.group === group).map((field) => (
-              <div key={field.key} className="flex items-center gap-4">
-                <label className="w-40 text-sm text-slate-600">{field.label}</label>
-                <Input
-                  value={rules[field.key] || ""}
-                  onChange={(e) =>
-                    setRules((prev) => ({ ...prev, [field.key]: e.target.value }))
-                  }
-                  placeholder="Word style name"
-                  className="flex-1"
-                />
-              </div>
-            ))}
+            {MAPPING_FIELDS.filter((f) => f.group === group).map((field) => {
+              const value = rules[field.key] || "";
+              const valueInStyles = hasStyles && styles.includes(value);
+              const isCustomValue = hasStyles && value && !valueInStyles;
+
+              return (
+                <div key={field.key} className="flex items-center gap-4">
+                  <label className="w-40 shrink-0 text-sm text-slate-600">
+                    {field.label}
+                  </label>
+                  {hasStyles ? (
+                    <div className="relative flex-1">
+                      <select
+                        value={value}
+                        onChange={(e) =>
+                          setRules((prev) => ({ ...prev, [field.key]: e.target.value }))
+                        }
+                        className={`h-9 w-full appearance-none rounded-md border bg-white px-3 pr-8 text-sm shadow-sm transition-colors focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 ${
+                          isCustomValue
+                            ? "border-amber-300 text-amber-700"
+                            : value
+                              ? "border-slate-200 text-slate-900"
+                              : "border-slate-200 text-slate-400"
+                        }`}
+                      >
+                        <option value="">— Select style —</option>
+                        {isCustomValue && (
+                          <option value={value}>{value} (custom)</option>
+                        )}
+                        {styles.map((s) => (
+                          <option key={s} value={s}>
+                            {s}
+                          </option>
+                        ))}
+                      </select>
+                      <ChevronDown className="pointer-events-none absolute right-2.5 top-2.5 h-4 w-4 text-slate-400" />
+                    </div>
+                  ) : (
+                    <input
+                      type="text"
+                      value={value}
+                      onChange={(e) =>
+                        setRules((prev) => ({ ...prev, [field.key]: e.target.value }))
+                      }
+                      placeholder={loadingStyles ? "Loading styles..." : "Word style name"}
+                      disabled={loadingStyles}
+                      className="h-9 flex-1 rounded-md border border-slate-200 bg-white px-3 text-sm shadow-sm transition-colors placeholder:text-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 disabled:opacity-50"
+                    />
+                  )}
+                </div>
+              );
+            })}
           </CardContent>
         </Card>
       ))}

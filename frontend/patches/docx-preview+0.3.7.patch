@@ -1,0 +1,46 @@
+diff --git a/node_modules/docx-preview/dist/docx-preview.js b/node_modules/docx-preview/dist/docx-preview.js
+index b7a26e9..0bb65f8 100644
+--- a/node_modules/docx-preview/dist/docx-preview.js
++++ b/node_modules/docx-preview/dist/docx-preview.js
+@@ -1309,7 +1309,8 @@
+                     result.tagName = "image";
+                     Object.assign(result.attrs, { width: '100%', height: '100%' });
+                     result.imageHref = {
+-                        id: globalXmlParser.attr(el, "id"),
++                        id: el.getAttributeNS("http://schemas.openxmlformats.org/officeDocument/2006/relationships", "id")
++                            || globalXmlParser.attr(el, "id"),
+                         title: globalXmlParser.attr(el, "title"),
+                     };
+                     break;
+@@ -2107,8 +2108,6 @@
+             else if (wrapType == "wrapNone") {
+                 result.cssStyle['display'] = 'block';
+                 result.cssStyle['position'] = 'relative';
+-                result.cssStyle["width"] = "0px";
+-                result.cssStyle["height"] = "0px";
+                 if (posX.offset)
+                     result.cssStyle["left"] = posX.offset;
+                 if (posY.offset)
+diff --git a/node_modules/docx-preview/dist/docx-preview.mjs b/node_modules/docx-preview/dist/docx-preview.mjs
+index 0ab9123..0cc9151 100644
+--- a/node_modules/docx-preview/dist/docx-preview.mjs
++++ b/node_modules/docx-preview/dist/docx-preview.mjs
+@@ -1305,7 +1305,8 @@ function parseVmlElement(elem, parser) {
+                 result.tagName = "image";
+                 Object.assign(result.attrs, { width: '100%', height: '100%' });
+                 result.imageHref = {
+-                    id: globalXmlParser.attr(el, "id"),
++                    id: el.getAttributeNS("http://schemas.openxmlformats.org/officeDocument/2006/relationships", "id")
++                        || globalXmlParser.attr(el, "id"),
+                     title: globalXmlParser.attr(el, "title"),
+                 };
+                 break;
+@@ -2103,8 +2104,6 @@ class DocumentParser {
+         else if (wrapType == "wrapNone") {
+             result.cssStyle['display'] = 'block';
+             result.cssStyle['position'] = 'relative';
+-            result.cssStyle["width"] = "0px";
+-            result.cssStyle["height"] = "0px";
+             if (posX.offset)
+                 result.cssStyle["left"] = posX.offset;
+             if (posY.offset)

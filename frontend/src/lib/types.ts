@@ -42,6 +42,8 @@ export interface Template {
 
 export interface MappingRules {
   heading: Record<string, string>;
+  document_title: string;
+  document_subtitle: string;
   paragraph: string;
   list_bullet: string;
   list_bullet_2: string;
@@ -117,6 +119,57 @@ export interface Export {
   error_message: string | null;
   exported_by: string | null;
   exported_at: string;
+}
+
+export interface Font {
+  id: string;
+  name: string;
+  family: string;
+  font_aliases: string[];
+  filename: string;
+  file_storage_path: string;
+  file_size_bytes: number;
+  mime_type: string;
+  created_by: string;
+  created_at: string;
+}
+
+export type SubscriptionTier = "solo" | "team" | "enterprise";
+export type SubscriptionStatusType =
+  | "trialing"
+  | "active"
+  | "past_due"
+  | "canceled"
+  | "unpaid"
+  | "incomplete";
+
+export interface Subscription {
+  id: string;
+  user_id: string;
+  tier: SubscriptionTier;
+  status: SubscriptionStatusType;
+  stripe_customer_id: string | null;
+  stripe_subscription_id: string | null;
+  current_period_start: string | null;
+  current_period_end: string | null;
+  cancel_at_period_end: boolean;
+  trial_end: string | null;
+  price_id: string | null;
+  billing_interval: string | null;
+  conversions_this_period: number;
+  period_reset_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface SubscriptionUsage {
+  tier: SubscriptionTier;
+  status: SubscriptionStatusType;
+  conversions_used: number;
+  conversions_limit: number | null;
+  templates_used: number;
+  templates_limit: number | null;
+  features: Record<string, boolean>;
 }
 
 export interface ClassifyResponse {

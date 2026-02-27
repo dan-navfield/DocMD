@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { Search, HelpCircle } from "lucide-react";
+import { Search, HelpCircle, Settings } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
@@ -11,7 +11,6 @@ const tabs = [
   { label: "Templates", href: "/templates" },
   { label: "Mappings", href: "/mappings" },
   { label: "Projects", href: "/projects" },
-  { label: "Settings", href: "/settings" },
 ];
 
 export function TopBar() {
@@ -51,9 +50,17 @@ export function TopBar() {
             className="h-8 w-48 pl-8 text-sm"
           />
         </div>
-        <button className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600">
-          <HelpCircle className="h-4 w-4" />
-        </button>
+        <Link
+          href="/settings"
+          className={cn(
+            "flex h-8 w-8 items-center justify-center rounded-lg transition-colors",
+            pathname.startsWith("/settings")
+              ? "bg-emerald-100 text-emerald-700"
+              : "text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+          )}
+        >
+          <Settings className="h-4 w-4" />
+        </Link>
       </div>
     </div>
   );

@@ -11,7 +11,7 @@ def parse_markdown(text: str) -> list[dict[str, Any]]:
     Parse Markdown text into a list of AST nodes.
     Each node has a 'type' and type-specific fields.
     """
-    md = mistune.create_markdown(renderer=mistune.AstRenderer())
+    md = mistune.create_markdown(renderer='ast', plugins=['table', 'strikethrough', 'task_lists'])
     ast = md(text)
     return _normalize_ast(ast)
 
