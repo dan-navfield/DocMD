@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>You've been invited to DocMD</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f8fafc;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f8fafc;padding:40px 0;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="480" cellpadding="0" cellspacing="0" style="background-color:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.08);">
+          <!-- Header -->
+          <tr>
+            <td style="background-color:#047857;padding:32px 40px;text-align:center;">
+              <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 auto;">
+                <tr>
+                  <td style="background-color:rgba(255,255,255,0.2);border-radius:10px;width:40px;height:40px;text-align:center;vertical-align:middle;font-weight:bold;font-size:16px;color:#ffffff;">
+                    MD
+                  </td>
+                  <td style="padding-left:12px;font-size:20px;font-weight:600;color:#ffffff;">
+                    DocMD
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <!-- Body -->
+          <tr>
+            <td style="padding:40px;">
+              <h1 style="margin:0 0 8px 0;font-size:24px;font-weight:700;color:#0f172a;">
+                You've been invited
+              </h1>
+              <p style="margin:0 0 28px 0;font-size:15px;line-height:1.6;color:#64748b;">
+                You've been invited to join a team on DocMD. Click the button below to accept the invitation and set up your account.
+              </p>
+              <!-- CTA Button -->
+              <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 auto 28px auto;">
+                <tr>
+                  <td style="border-radius:8px;background-color:#fde047;text-align:center;">
+                    <a href="{{ .ConfirmationURL }}" target="_blank" style="display:inline-block;padding:14px 32px;font-size:14px;font-weight:600;color:#000000;text-decoration:none;">
+                      Accept invitation
+                    </a>
+                  </td>
+                </tr>
+              </table>
+              <p style="margin:0 0 4px 0;font-size:13px;color:#94a3b8;">
+                Or copy and paste this link into your browser:
+              </p>
+              <p style="margin:0 0 28px 0;font-size:13px;color:#047857;word-break:break-all;">
+                {{ .ConfirmationURL }}
+              </p>
+              <hr style="border:none;border-top:1px solid #e2e8f0;margin:28px 0;">
+              <p style="margin:0;font-size:12px;line-height:1.5;color:#94a3b8;">
+                If you weren't expecting this invitation, you can safely ignore this email.
+              </p>
+            </td>
+          </tr>
+          <!-- Footer -->
+          <tr>
+            <td style="background-color:#f8fafc;padding:24px 40px;border-top:1px solid #e2e8f0;text-align:center;">
+              <p style="margin:0;font-size:12px;color:#94a3b8;">
+                DocMD &mdash; Markdown in. Word out. Perfectly styled.
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
