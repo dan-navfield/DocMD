@@ -35,3 +35,6 @@ docker-compose.override.yml
 # Supabase
 supabase/.temp/
 .mcp.json
+
+# DigitalOcean app spec (contains secrets)
+.do/
