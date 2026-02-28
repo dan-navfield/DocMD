@@ -137,7 +137,7 @@ export function MappingStep({ templateId, onNext }: MappingStepProps) {
           <Button
             onClick={handleCreate}
             disabled={creating || !mappingName}
-            className="h-11 bg-yellow-300 hover:bg-yellow-400 text-black text-sm font-medium px-8"
+            className="h-11 bg-[#fafd99] hover:bg-[#f0f47a] text-[#3b432f] text-sm font-medium px-8"
           >
             {creating ? (
               <>
@@ -152,7 +152,7 @@ export function MappingStep({ templateId, onNext }: MappingStepProps) {
         {created && (
           <Button
             onClick={() => onNext(createdId)}
-            className="h-11 bg-yellow-300 hover:bg-yellow-400 text-black text-sm font-medium px-8"
+            className="h-11 bg-[#fafd99] hover:bg-[#f0f47a] text-[#3b432f] text-sm font-medium px-8"
           >
             Continue
           </Button>

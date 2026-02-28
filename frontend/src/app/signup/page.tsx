@@ -324,7 +324,7 @@ export default function SignupPage() {
                   if (selectedTier) setStep(2);
                 }}
                 disabled={!selectedTier}
-                className="mt-6 h-11 w-full bg-yellow-300 hover:bg-yellow-400 text-black text-sm font-medium"
+                className="mt-6 h-11 w-full bg-[#fafd99] hover:bg-[#f0f47a] text-[#3b432f] text-sm font-medium"
               >
                 Continue
                 <ArrowRight className="ml-2 h-4 w-4" />
@@ -477,7 +477,7 @@ export default function SignupPage() {
                     <Button
                       type="submit"
                       disabled={loading || !name || !email || !password}
-                      className="h-11 w-full bg-yellow-300 hover:bg-yellow-400 text-black text-sm font-medium"
+                      className="h-11 w-full bg-[#fafd99] hover:bg-[#f0f47a] text-[#3b432f] text-sm font-medium"
                     >
                       {loading ? (
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />

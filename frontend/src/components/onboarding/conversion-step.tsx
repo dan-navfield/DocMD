@@ -195,7 +195,7 @@ export function ConversionStep({
           <Button
             onClick={handleConvert}
             disabled={converting || !markdown.trim()}
-            className="h-11 bg-yellow-300 hover:bg-yellow-400 text-black text-sm font-medium px-8"
+            className="h-11 bg-[#fafd99] hover:bg-[#f0f47a] text-[#3b432f] text-sm font-medium px-8"
           >
             {converting ? (
               <>
@@ -210,7 +210,7 @@ export function ConversionStep({
         {(converted || !canConvert) && (
           <Button
             onClick={onNext}
-            className="h-11 bg-yellow-300 hover:bg-yellow-400 text-black text-sm font-medium px-8"
+            className="h-11 bg-[#fafd99] hover:bg-[#f0f47a] text-[#3b432f] text-sm font-medium px-8"
           >
             Continue
           </Button>

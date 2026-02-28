@@ -75,7 +75,7 @@ export function WelcomeStep({ userName, onNext }: WelcomeStepProps) {
 
       <Button
         onClick={onNext}
-        className="mt-8 h-11 bg-yellow-300 hover:bg-yellow-400 text-black text-sm font-medium px-8"
+        className="mt-8 h-11 bg-[#fafd99] hover:bg-[#f0f47a] text-[#3b432f] text-sm font-medium px-8"
       >
         Let&apos;s go
       </Button>
