@@ -27,9 +27,9 @@ export function InlineMappingPanel({
   const hasStyles = styles.length > 0;
 
   return (
-    <div className="border-t border-slate-200 bg-slate-50 px-4 py-3">
+    <div className="border-t border-[#dddacc] bg-[#fdfcf5] px-4 py-3">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-xs font-semibold text-slate-600 uppercase tracking-wide">
+        <h3 className="text-xs font-semibold text-[#6b665e] uppercase tracking-wide">
           Style Mappings
         </h3>
         {onSave && (
@@ -49,7 +49,7 @@ export function InlineMappingPanel({
       <div className="space-y-3">
         {groups.map((group) => (
           <div key={group}>
-            <p className="mb-1.5 text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
+            <p className="mb-1.5 text-[10px] font-semibold text-[#94908a] uppercase tracking-wider">
               {group}
             </p>
             <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2 lg:grid-cols-3">
@@ -60,7 +60,7 @@ export function InlineMappingPanel({
 
                 return (
                   <div key={field.key} className="flex items-center gap-2">
-                    <label className="w-28 shrink-0 text-[11px] text-slate-500 truncate" title={field.label}>
+                    <label className="w-28 shrink-0 text-[11px] text-[#94908a] truncate" title={field.label}>
                       {field.label}
                     </label>
                     {hasStyles ? (
@@ -68,12 +68,12 @@ export function InlineMappingPanel({
                         <select
                           value={value}
                           onChange={(e) => onChange(field.key, e.target.value)}
-                          className={`h-7 w-full appearance-none rounded border bg-white px-2 pr-6 text-[11px] shadow-sm transition-colors focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 ${
+                          className={`h-7 w-full appearance-none rounded border bg-white px-2 pr-6 text-[11px] shadow-sm transition-colors focus:border-[#4c573e] focus:outline-none focus:ring-1 focus:ring-[#4c573e] ${
                             isCustomValue
                               ? "border-amber-300 text-amber-700"
                               : value
-                                ? "border-slate-200 text-slate-900"
-                                : "border-slate-200 text-slate-400"
+                                ? "border-[#dddacc] text-[#3b432f]"
+                                : "border-[#dddacc] text-[#94908a]"
                           }`}
                         >
                           <option value="">-- Select --</option>
@@ -84,7 +84,7 @@ export function InlineMappingPanel({
                             <option key={s} value={s}>{s}</option>
                           ))}
                         </select>
-                        <ChevronDown className="pointer-events-none absolute right-1.5 top-1.5 h-3.5 w-3.5 text-slate-400" />
+                        <ChevronDown className="pointer-events-none absolute right-1.5 top-1.5 h-3.5 w-3.5 text-[#94908a]" />
                       </div>
                     ) : (
                       <input
@@ -92,7 +92,7 @@ export function InlineMappingPanel({
                         value={value}
                         onChange={(e) => onChange(field.key, e.target.value)}
                         placeholder="Style name"
-                        className="h-7 flex-1 rounded border border-slate-200 bg-white px-2 text-[11px] shadow-sm placeholder:text-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                        className="h-7 flex-1 rounded border border-[#dddacc] bg-white px-2 text-[11px] shadow-sm placeholder:text-[#94908a] focus:border-[#4c573e] focus:outline-none focus:ring-1 focus:ring-[#4c573e]"
                       />
                     )}
                   </div>

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { onboarding } from "@/lib/api";
+import { toast } from "sonner";
 import { WelcomeStep } from "@/components/onboarding/welcome-step";
 import { FeaturesStep } from "@/components/onboarding/features-step";
 import { TemplateUploadStep } from "@/components/onboarding/template-upload-step";
@@ -59,7 +60,7 @@ export default function OnboardingPage() {
     try {
       await onboarding.markComplete();
     } catch {
-      // Best effort
+      toast.error("Failed to save onboarding progress");
     }
     router.push("/documents");
   };
@@ -68,29 +69,29 @@ export default function OnboardingPage() {
     try {
       await onboarding.markComplete();
     } catch {
-      // Best effort
+      toast.error("Failed to save onboarding progress");
     }
     router.push("/documents");
   };
 
   if (loading) {
     return (
-      <div className="flex h-screen items-center justify-center bg-slate-50">
-        <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+      <div className="flex h-screen items-center justify-center bg-[#fdfcf5]">
+        <Loader2 className="h-8 w-8 animate-spin text-[#4c573e]" />
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-slate-50">
+    <div className="flex min-h-screen flex-col bg-[#fdfcf5]">
       {/* Progress bar */}
       <div className="border-b bg-white px-6 py-4">
         <div className="mx-auto flex max-w-2xl items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-600 font-bold text-sm text-white">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#4c573e] font-bold text-sm text-white">
               MD
             </div>
-            <span className="text-sm font-medium text-slate-600">
+            <span className="text-sm font-medium text-[#6b665e]">
               Step {step + 1} of {TOTAL_STEPS}
             </span>
           </div>
@@ -100,7 +101,7 @@ export default function OnboardingPage() {
                 <div
                   key={i}
                   className={`h-1.5 w-8 rounded-full transition-colors ${
-                    i <= step ? "bg-emerald-500" : "bg-slate-200"
+                    i <= step ? "bg-[#4c573e]" : "bg-[#dddacc]"
                   }`}
                 />
               ))}
@@ -152,7 +153,7 @@ export default function OnboardingPage() {
         <div className="border-t bg-white px-6 py-3 text-center">
           <button
             onClick={handleSkip}
-            className="text-sm text-slate-400 hover:text-slate-600"
+            className="text-sm text-[#94908a] hover:text-[#3b432f]"
           >
             Skip setup
           </button>

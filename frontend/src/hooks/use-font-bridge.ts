@@ -91,7 +91,7 @@ export function useFontBridge(): FontBridgeResult {
 
         // Inject into document head as fallback
         const styleEl = document.createElement("style");
-        styleEl.id = "docmd-custom-fonts";
+        styleEl.id = "mddoc-custom-fonts";
         styleEl.textContent = cssRulesStr;
         document.head.appendChild(styleEl);
 
@@ -112,7 +112,7 @@ export function useFontBridge(): FontBridgeResult {
       fontBlobUrlsRef.current.forEach((url) => URL.revokeObjectURL(url));
       fontBlobUrlsRef.current = new Map();
       registeredNamesRef.current = new Set();
-      const el = document.getElementById("docmd-custom-fonts");
+      const el = document.getElementById("mddoc-custom-fonts");
       if (el) el.remove();
     };
   }, []);

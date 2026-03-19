@@ -39,7 +39,7 @@ async def require_api_key(
 ) -> dict:
     """Dependency for public API endpoints: API-key-only auth with billing gates.
 
-    1. Requires ``Authorization: Bearer docmd_...`` — rejects JWT tokens.
+    1. Requires ``Authorization: Bearer mddoc_...`` — rejects JWT tokens.
     2. Validates key via SHA-256 hash lookup in ``api_keys`` table.
     3. Checks ``api_access`` feature gate (team/enterprise only).
     4. Checks ``can_convert`` billing quota.
@@ -48,16 +48,16 @@ async def require_api_key(
     if not authorization:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail={"code": "missing_api_key", "message": "Missing Authorization header. Use: Bearer docmd_..."},
+            detail={"code": "missing_api_key", "message": "Missing Authorization header. Use: Bearer mddoc_..."},
         )
 
     token = authorization.replace("Bearer ", "").strip()
 
-    # Reject non-API-key tokens (JWTs, random strings without docmd_ prefix)
-    if not token.startswith("docmd_"):
+    # Reject non-API-key tokens (JWTs, random strings without mddoc_ prefix)
+    if not token.startswith("mddoc_"):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail={"code": "invalid_api_key", "message": "This endpoint requires an API key (docmd_...). JWT tokens are not accepted."},
+            detail={"code": "invalid_api_key", "message": "This endpoint requires an API key (mddoc_...). JWT tokens are not accepted."},
         )
 
     # Validate key via SHA-256 hash
@@ -123,10 +123,10 @@ async def require_mcp_key(
 
     token = authorization.replace("Bearer ", "").strip()
 
-    if not token.startswith("docmd_"):
+    if not token.startswith("mddoc_"):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="This endpoint requires a DocMD API key (docmd_...).",
+            detail="This endpoint requires a MDDoc API key (mddoc_...).",
         )
 
     key_hash = hashlib.sha256(token.encode()).hexdigest()

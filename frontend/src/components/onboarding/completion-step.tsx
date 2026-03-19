@@ -32,14 +32,14 @@ const QUICK_LINKS = [
 export function CompletionStep({ onComplete }: CompletionStepProps) {
   return (
     <div className="flex flex-col items-center">
-      <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100">
-        <PartyPopper className="h-8 w-8 text-emerald-600" />
+      <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[#fafd99]/20">
+        <PartyPopper className="h-8 w-8 text-[#4c573e]" />
       </div>
 
-      <h2 className="text-3xl font-bold text-slate-900">
+      <h2 className="text-3xl font-bold text-[#3b432f]">
         You&apos;re all set!
       </h2>
-      <p className="mt-2 text-sm text-slate-500">
+      <p className="mt-2 text-sm text-[#94908a]">
         You&apos;re ready to start converting documents. Here are some quick
         links to get going.
       </p>
@@ -49,14 +49,14 @@ export function CompletionStep({ onComplete }: CompletionStepProps) {
           <Link
             key={link.href}
             href={link.href}
-            className="flex items-center gap-4 rounded-xl border border-slate-200 p-4 transition hover:border-emerald-300 hover:bg-emerald-50/50"
+            className="flex items-center gap-4 rounded-xl border border-[#dddacc] p-4 transition hover:border-[#d8db6e] hover:bg-[#fafd99]/10"
           >
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-slate-100">
-              <link.icon className="h-5 w-5 text-slate-600" />
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#edebe0]">
+              <link.icon className="h-5 w-5 text-[#6b665e]" />
             </div>
             <div>
-              <h3 className="font-medium text-slate-900">{link.title}</h3>
-              <p className="text-sm text-slate-500">{link.description}</p>
+              <h3 className="font-medium text-[#3b432f]">{link.title}</h3>
+              <p className="text-sm text-[#94908a]">{link.description}</p>
             </div>
           </Link>
         ))}
@@ -64,7 +64,8 @@ export function CompletionStep({ onComplete }: CompletionStepProps) {
 
       <Button
         onClick={onComplete}
-        className="mt-8 h-11 bg-[#fafd99] hover:bg-[#f0f47a] text-[#3b432f] text-sm font-medium px-8"
+        className="mt-8 h-11 bg-[#fafd99] hover:bg-[#f0f47a] text-sm font-medium px-8"
+        style={{ color: "#3b432f" }}
       >
         Go to dashboard
       </Button>

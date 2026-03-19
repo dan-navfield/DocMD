@@ -7,16 +7,16 @@ export default function HomePage() {
   return (
     <div className="mx-auto max-w-5xl space-y-8">
       <div className="rounded-xl bg-white border p-8">
-        <h1 className="text-3xl font-bold text-slate-900">
-          Welcome to DocMD
+        <h1 className="text-3xl font-bold text-[#3b432f]">
+          Welcome to MDDoc
         </h1>
-        <p className="mt-2 text-lg text-slate-600">
+        <p className="mt-2 text-lg text-[#6b665e]">
           Turn Markdown into professionally styled Word documents — reliably,
           repeatably, and without manual reformatting.
         </p>
         <div className="mt-6 flex gap-3">
           <Link href="/documents?new=true">
-            <Button className="bg-emerald-600 hover:bg-emerald-700">
+            <Button className="bg-[#4c573e] hover:bg-[#3b432f]">
               <FileText className="mr-2 h-4 w-4" />
               New Document
             </Button>
@@ -33,14 +33,14 @@ export default function HomePage() {
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <Card className="hover:shadow-md transition-shadow">
           <CardHeader className="pb-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-100">
-              <FileText className="h-5 w-5 text-emerald-600" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#fafd99]/20">
+              <FileText className="h-5 w-5 text-[#4c573e]" />
             </div>
             <CardTitle className="text-base">Documents</CardTitle>
             <CardDescription>Upload and manage your Markdown files</CardDescription>
           </CardHeader>
           <CardContent>
-            <Link href="/documents" className="inline-flex items-center text-sm text-emerald-600 hover:text-emerald-700">
+            <Link href="/documents" className="inline-flex items-center text-sm text-[#4c573e] hover:text-[#3b432f]">
               View documents <ArrowRight className="ml-1 h-3 w-3" />
             </Link>
           </CardContent>
@@ -55,7 +55,7 @@ export default function HomePage() {
             <CardDescription>Word templates that define your output styles</CardDescription>
           </CardHeader>
           <CardContent>
-            <Link href="/templates" className="inline-flex items-center text-sm text-emerald-600 hover:text-emerald-700">
+            <Link href="/templates" className="inline-flex items-center text-sm text-[#4c573e] hover:text-[#3b432f]">
               Manage templates <ArrowRight className="ml-1 h-3 w-3" />
             </Link>
           </CardContent>
@@ -70,7 +70,7 @@ export default function HomePage() {
             <CardDescription>AI-powered document classification and routing</CardDescription>
           </CardHeader>
           <CardContent>
-            <Link href="/settings" className="inline-flex items-center text-sm text-emerald-600 hover:text-emerald-700">
+            <Link href="/settings" className="inline-flex items-center text-sm text-[#4c573e] hover:text-[#3b432f]">
               Configure agent <ArrowRight className="ml-1 h-3 w-3" />
             </Link>
           </CardContent>
@@ -78,7 +78,7 @@ export default function HomePage() {
       </div>
 
       <div className="rounded-xl border bg-white p-6">
-        <h2 className="text-lg font-semibold text-slate-900 mb-4">Quick Start</h2>
+        <h2 className="text-lg font-semibold text-[#3b432f] mb-4">Quick Start</h2>
         <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
           {[
             { step: "1", title: "Upload Markdown", desc: "Paste or upload your .md file" },
@@ -87,12 +87,12 @@ export default function HomePage() {
             { step: "4", title: "Export", desc: "Download or send to SharePoint" },
           ].map((item) => (
             <div key={item.step} className="flex items-start gap-3">
-              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-sm font-semibold text-emerald-700">
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#fafd99]/20 text-sm font-semibold text-[#3b432f]">
                 {item.step}
               </div>
               <div>
-                <p className="text-sm font-medium text-slate-900">{item.title}</p>
-                <p className="text-xs text-slate-500">{item.desc}</p>
+                <p className="text-sm font-medium text-[#3b432f]">{item.title}</p>
+                <p className="text-xs text-[#94908a]">{item.desc}</p>
               </div>
             </div>
           ))}

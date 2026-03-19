@@ -56,15 +56,15 @@ export function ConversionToolbar({
   const warnings = conversion?.warnings || [];
 
   return (
-    <div className="border-b border-slate-200 bg-slate-50">
+    <div className="border-b border-[#dddacc] bg-[#fdfcf5]">
       <div className="flex items-center gap-3 px-4 py-2">
         {/* Template dropdown */}
         <div className="flex items-center gap-1.5">
-          <label className="text-xs font-medium text-slate-500">Template</label>
+          <label className="text-xs font-medium text-[#94908a]">Template</label>
           <select
             value={selectedTemplate}
             onChange={(e) => onTemplateChange(e.target.value)}
-            className="h-7 rounded border border-slate-200 bg-white px-2 text-xs"
+            className="h-7 rounded border border-[#dddacc] bg-white px-2 text-xs"
           >
             {templates.map((t) => (
               <option key={t.id} value={t.id}>{t.name}</option>
@@ -74,11 +74,11 @@ export function ConversionToolbar({
 
         {/* Mapping dropdown */}
         <div className="flex items-center gap-1.5">
-          <label className="text-xs font-medium text-slate-500">Mapping</label>
+          <label className="text-xs font-medium text-[#94908a]">Mapping</label>
           <select
             value={selectedMapping}
             onChange={(e) => onMappingChange(e.target.value)}
-            className="h-7 rounded border border-slate-200 bg-white px-2 text-xs"
+            className="h-7 rounded border border-[#dddacc] bg-white px-2 text-xs"
           >
             {mappings.map((m) => (
               <option key={m.id} value={m.id}>{m.name}</option>
@@ -88,7 +88,7 @@ export function ConversionToolbar({
 
         {/* Stats */}
         {statsText && (
-          <span className="text-xs text-slate-500 border-l border-slate-200 pl-3">
+          <span className="text-xs text-[#94908a] border-l border-[#dddacc] pl-3">
             {statsText}
           </span>
         )}

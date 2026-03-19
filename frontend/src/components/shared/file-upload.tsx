@@ -49,8 +49,8 @@ export function FileUpload({
       className={cn(
         "relative rounded-lg border-2 border-dashed p-6 text-center transition-colors",
         dragActive
-          ? "border-emerald-400 bg-emerald-50"
-          : "border-slate-200 hover:border-slate-300",
+          ? "border-[#6b7f5a] bg-[#fafd99]/10"
+          : "border-[#dddacc] hover:border-[#dddacc]",
         className
       )}
       onDragOver={(e) => {
@@ -62,20 +62,20 @@ export function FileUpload({
     >
       {selectedFile ? (
         <div className="flex items-center justify-center gap-2">
-          <FileText className="h-5 w-5 text-emerald-600" />
+          <FileText className="h-5 w-5 text-[#4c573e]" />
           <span className="text-sm font-medium">{selectedFile.name}</span>
           <button
             onClick={() => setSelectedFile(null)}
-            className="ml-2 rounded-full p-0.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+            className="ml-2 rounded-full p-0.5 text-[#94908a] hover:bg-[#edebe0] hover:text-[#3b432f]"
           >
             <X className="h-4 w-4" />
           </button>
         </div>
       ) : (
         <>
-          <Upload className="mx-auto mb-2 h-8 w-8 text-slate-400" />
-          <p className="text-sm text-slate-600">{label}</p>
-          <p className="mt-1 text-xs text-slate-400">
+          <Upload className="mx-auto mb-2 h-8 w-8 text-[#94908a]" />
+          <p className="text-sm text-[#6b665e]">{label}</p>
+          <p className="mt-1 text-xs text-[#94908a]">
             Drag and drop or click to browse
           </p>
         </>

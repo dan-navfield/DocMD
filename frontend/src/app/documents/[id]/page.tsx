@@ -38,13 +38,14 @@ import {
   agent as agentApi,
 } from "@/lib/api";
 import type {
-  DocMDDocument,
+  MDDocDocument,
   Template,
   Mapping,
   Conversion,
   ClassifyResponse,
   MappingRules,
 } from "@/lib/types";
+import { toast } from "sonner";
 
 const MDEditor = dynamic(() => import("@uiw/react-md-editor"), { ssr: false });
 const MarkdownPreview = dynamic(
@@ -61,7 +62,7 @@ export default function DocumentDetailPage() {
   const docId = params.id as string;
 
   // Core document state
-  const [doc, setDoc] = useState<DocMDDocument | null>(null);
+  const [doc, setDoc] = useState<MDDocDocument | null>(null);
   const [markdown, setMarkdown] = useState<string | null>(null);
   const [savedMarkdown, setSavedMarkdown] = useState<string | null>(null);
   const [editorMode, setEditorMode] = useState<EditorMode>("preview");
@@ -108,7 +109,7 @@ export default function DocumentDetailPage() {
 
   // Persist split view layout across page reloads
   const { defaultLayout, onLayoutChanged } = useDefaultLayout({
-    id: "docmd-split-view",
+    id: "mddoc-split-view",
     storage: typeof window !== "undefined" ? localStorage : undefined,
   });
 
@@ -116,13 +117,13 @@ export default function DocumentDetailPage() {
 
   // --- Data loading ---
   useEffect(() => {
-    docsApi.get(docId).then(setDoc).catch(console.error);
+    docsApi.get(docId).then(setDoc).catch(() => toast.error("Failed to load document"));
     docsApi.getContent(docId).then((content) => {
       setMarkdown(content);
       setSavedMarkdown(content);
-    }).catch(console.error);
-    templatesApi.list().then(setTemplates).catch(() => []);
-    mappingsApi.list().then(setAllMappings).catch(() => []);
+    }).catch(() => toast.error("Failed to load content"));
+    templatesApi.list().then(setTemplates).catch(() => toast.error("Failed to load templates"));
+    mappingsApi.list().then(setAllMappings).catch(() => toast.error("Failed to load mappings"));
   }, [docId]);
 
   // --- Save handler ---
@@ -136,7 +137,7 @@ export default function DocumentDetailPage() {
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 2000);
     } catch (e) {
-      console.error(e);
+      toast.error("Failed to save document");
     } finally {
       setSaving(false);
     }
@@ -170,7 +171,7 @@ export default function DocumentDetailPage() {
       if (result.recommended_mapping_id)
         setSelectedMapping(result.recommended_mapping_id);
     } catch (e) {
-      console.error(e);
+      toast.error("Failed to classify document");
     } finally {
       setClassifying(false);
     }
@@ -233,7 +234,7 @@ export default function DocumentDetailPage() {
         setPhase("post_convert");
       }
     } catch (e) {
-      console.error(e);
+      toast.error("Conversion failed");
       setPhase("pre_convert");
     } finally {
       setConverting(false);
@@ -264,7 +265,7 @@ export default function DocumentDetailPage() {
         setDocxPreviewData(arrayBuf);
       }
     } catch (e) {
-      console.error(e);
+      toast.error("Re-conversion failed");
     } finally {
       if (gen === generationRef.current) {
         setReconverting(false);
@@ -310,7 +311,7 @@ export default function DocumentDetailPage() {
       const newRules = unflattenRules(mappingRules);
       await mappingsApi.update(selectedMapping, { rules: newRules });
     } catch (e) {
-      console.error(e);
+      toast.error("Failed to save mapping");
     } finally {
       setSavingMapping(false);
     }
@@ -341,7 +342,7 @@ export default function DocumentDetailPage() {
         a.click();
         URL.revokeObjectURL(url);
       } catch (err) {
-        console.error("Download failed:", err);
+        toast.error("Download failed");
       } finally {
         setDownloading(false);
       }
@@ -351,8 +352,12 @@ export default function DocumentDetailPage() {
   // --- Delete ---
   const handleDelete = async () => {
     if (!confirm("Delete this document?")) return;
-    await docsApi.delete(docId);
-    router.push("/documents");
+    try {
+      await docsApi.delete(docId);
+      router.push("/documents");
+    } catch (e) {
+      toast.error("Failed to delete document");
+    }
   };
 
   // --- Font bridge callback for DocxPreviewPane ---
@@ -383,7 +388,7 @@ export default function DocumentDetailPage() {
   if (!doc) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-6 w-6 animate-spin rounded-full border-2 border-emerald-600 border-t-transparent" />
+        <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#4c573e] border-t-transparent" />
       </div>
     );
   }
@@ -401,15 +406,15 @@ export default function DocumentDetailPage() {
     return (
       <div className="flex flex-col -m-6" style={{ height: "calc(100vh - 3.5rem)" }}>
         {/* Compact Header */}
-        <div className="flex items-center gap-4 px-4 py-3 border-b border-slate-200 shrink-0 bg-white">
+        <div className="flex items-center gap-4 px-4 py-3 border-b border-[#dddacc] shrink-0 bg-white">
           <button
             onClick={() => setPhase("pre_convert")}
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-200 hover:text-slate-600"
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-[#94908a] hover:bg-[#edebe0] hover:text-[#6b665e]"
           >
             <ArrowLeft className="h-4 w-4" />
           </button>
           <div className="flex-1 min-w-0">
-            <h1 className="text-lg font-bold text-slate-900 truncate">{doc.title}</h1>
+            <h1 className="text-lg font-bold text-[#3b432f] truncate">{doc.title}</h1>
           </div>
           <div className="flex items-center gap-2 shrink-0">
             {hasUnsavedChanges && (
@@ -470,17 +475,17 @@ export default function DocumentDetailPage() {
           <Panel id="markdown" defaultSize="50%" minSize="30%">
             <div className="flex flex-col h-full">
               {/* Editor mode tabs */}
-              <div className="flex items-center justify-between border-b border-slate-100 bg-white px-3 py-1.5 shrink-0">
-                <span className="text-xs font-medium text-slate-500">Markdown</span>
-                <div className="flex rounded-md border border-slate-200 p-0.5">
+              <div className="flex items-center justify-between border-b border-[#edebe0] bg-white px-3 py-1.5 shrink-0">
+                <span className="text-xs font-medium text-[#94908a]">Markdown</span>
+                <div className="flex rounded-md border border-[#dddacc] p-0.5">
                   {modeButtons.map(({ mode, icon: Icon, label }) => (
                     <button
                       key={mode}
                       onClick={() => setEditorMode(mode)}
                       className={`flex items-center gap-1 rounded px-2 py-1 text-[11px] font-medium transition-colors ${
                         editorMode === mode
-                          ? "bg-slate-900 text-white shadow-sm"
-                          : "text-slate-500 hover:text-slate-700"
+                          ? "bg-[#3b432f] text-white shadow-sm"
+                          : "text-[#94908a] hover:text-[#44403a]"
                       }`}
                     >
                       <Icon className="h-3 w-3" />
@@ -493,7 +498,7 @@ export default function DocumentDetailPage() {
               <div className="flex-1 overflow-auto">
                 {markdown === null ? (
                   <div className="flex items-center justify-center py-16">
-                    <div className="h-6 w-6 animate-spin rounded-full border-2 border-emerald-600 border-t-transparent" />
+                    <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#4c573e] border-t-transparent" />
                   </div>
                 ) : editorMode === "preview" ? (
                   <div className="p-4" data-color-mode="light">
@@ -519,13 +524,13 @@ export default function DocumentDetailPage() {
           </Panel>
 
           {/* Resize Handle */}
-          <PanelResizeHandle className="w-1.5 bg-slate-200 hover:bg-emerald-400 active:bg-emerald-500 transition-colors cursor-col-resize" />
+          <PanelResizeHandle className="w-1.5 bg-[#dddacc] hover:bg-[#6b7f5a] active:bg-[#4c573e] transition-colors cursor-col-resize" />
 
           {/* Right: DOCX Preview */}
           <Panel id="preview" defaultSize="50%" minSize="30%">
             <div className="flex flex-col h-full">
-              <div className="flex items-center border-b border-slate-100 bg-white px-3 py-1.5 shrink-0">
-                <span className="text-xs font-medium text-slate-500">DOCX Preview</span>
+              <div className="flex items-center border-b border-[#edebe0] bg-white px-3 py-1.5 shrink-0">
+                <span className="text-xs font-medium text-[#94908a]">DOCX Preview</span>
               </div>
               <DocxPreviewPane
                 docxData={docxPreviewData}
@@ -565,12 +570,12 @@ export default function DocumentDetailPage() {
       <div className="flex items-center gap-4">
         <button
           onClick={() => router.push("/documents")}
-          className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-200 hover:text-slate-600"
+          className="flex h-8 w-8 items-center justify-center rounded-lg text-[#94908a] hover:bg-[#edebe0] hover:text-[#6b665e]"
         >
           <ArrowLeft className="h-4 w-4" />
         </button>
         <div className="flex-1">
-          <h1 className="text-xl font-bold text-slate-900">{doc.title}</h1>
+          <h1 className="text-xl font-bold text-[#3b432f]">{doc.title}</h1>
           <div className="mt-1 flex items-center gap-2">
             <StatusBadge status={doc.status} />
             {doc.doc_type && (
@@ -583,7 +588,7 @@ export default function DocumentDetailPage() {
                 {tag}
               </Badge>
             ))}
-            <span className="text-xs text-slate-400">
+            <span className="text-xs text-[#94908a]">
               v{doc.current_version}
             </span>
           </div>
@@ -595,7 +600,7 @@ export default function DocumentDetailPage() {
             </span>
           )}
           {saveSuccess && (
-            <span className="flex items-center gap-1 text-xs text-emerald-600 font-medium">
+            <span className="flex items-center gap-1 text-xs text-[#4c573e] font-medium">
               <Check className="h-3 w-3" /> Saved
             </span>
           )}
@@ -632,24 +637,24 @@ export default function DocumentDetailPage() {
           <CardContent>
             {classifying ? (
               <div className="flex items-center gap-3 py-2">
-                <div className="h-4 w-4 animate-spin rounded-full border-2 border-emerald-600 border-t-transparent" />
-                <span className="text-sm text-slate-500">Classifying document...</span>
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-[#4c573e] border-t-transparent" />
+                <span className="text-sm text-[#94908a]">Classifying document...</span>
               </div>
             ) : classification ? (
               <div className="space-y-2 text-sm">
                 <div>
-                  <span className="text-slate-500">Detected type</span>
+                  <span className="text-[#94908a]">Detected type</span>
                   <p className="font-medium">{classification.doc_type}</p>
                 </div>
                 <div>
-                  <span className="text-slate-500">Confidence</span>
+                  <span className="text-[#94908a]">Confidence</span>
                   <p className="font-medium">
                     {Math.round(classification.confidence * 100)}%
                   </p>
                 </div>
                 {classification.recommended_filename && (
                   <div>
-                    <span className="text-slate-500">Suggested filename</span>
+                    <span className="text-[#94908a]">Suggested filename</span>
                     <p className="font-medium text-xs truncate">
                       {classification.recommended_filename}
                     </p>
@@ -657,7 +662,7 @@ export default function DocumentDetailPage() {
                 )}
                 <button
                   onClick={handleClassify}
-                  className="mt-1 text-xs text-emerald-600 hover:underline"
+                  className="mt-1 text-xs text-[#4c573e] hover:underline"
                 >
                   Re-classify
                 </button>
@@ -684,13 +689,13 @@ export default function DocumentDetailPage() {
           <CardContent>
             <div className="flex items-end gap-4">
               <div className="flex-1">
-                <label className="mb-1.5 block text-sm font-medium text-slate-700">
+                <label className="mb-1.5 block text-sm font-medium text-[#44403a]">
                   Template
                 </label>
                 <select
                   value={selectedTemplate}
                   onChange={(e) => setSelectedTemplate(e.target.value)}
-                  className="w-full rounded-md border border-slate-200 px-3 py-2 text-sm"
+                  className="w-full rounded-md border border-[#dddacc] px-3 py-2 text-sm"
                 >
                   <option value="">Select template...</option>
                   {templates.map((t) => (
@@ -701,13 +706,13 @@ export default function DocumentDetailPage() {
                 </select>
               </div>
               <div className="flex-1">
-                <label className="mb-1.5 block text-sm font-medium text-slate-700">
+                <label className="mb-1.5 block text-sm font-medium text-[#44403a]">
                   Mapping
                 </label>
                 <select
                   value={selectedMapping}
                   onChange={(e) => setSelectedMapping(e.target.value)}
-                  className="w-full rounded-md border border-slate-200 px-3 py-2 text-sm"
+                  className="w-full rounded-md border border-[#dddacc] px-3 py-2 text-sm"
                 >
                   <option value="">Select mapping...</option>
                   {allMappings.map((m) => (
@@ -718,7 +723,7 @@ export default function DocumentDetailPage() {
                 </select>
               </div>
               <Button
-                className="bg-emerald-600 hover:bg-emerald-700"
+                className="bg-[#4c573e] hover:bg-[#3b432f]"
                 disabled={!selectedTemplate || !selectedMapping || converting}
                 onClick={handleConvert}
               >
@@ -744,18 +749,18 @@ export default function DocumentDetailPage() {
 
       {/* Editor / Preview */}
       <Card className="overflow-hidden">
-        <CardHeader className="border-b border-slate-100 py-3">
+        <CardHeader className="border-b border-[#edebe0] py-3">
           <div className="flex items-center justify-between">
             <CardTitle className="text-base">Document Content</CardTitle>
-            <div className="flex rounded-lg border border-slate-200 p-0.5">
+            <div className="flex rounded-lg border border-[#dddacc] p-0.5">
               {modeButtons.map(({ mode, icon: Icon, label }) => (
                 <button
                   key={mode}
                   onClick={() => setEditorMode(mode)}
                   className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
                     editorMode === mode
-                      ? "bg-slate-900 text-white shadow-sm"
-                      : "text-slate-500 hover:text-slate-700"
+                      ? "bg-[#3b432f] text-white shadow-sm"
+                      : "text-[#94908a] hover:text-[#44403a]"
                   }`}
                 >
                   <Icon className="h-3.5 w-3.5" />
@@ -768,7 +773,7 @@ export default function DocumentDetailPage() {
         <CardContent className="p-0">
           {markdown === null ? (
             <div className="flex items-center justify-center py-16">
-              <div className="h-6 w-6 animate-spin rounded-full border-2 border-emerald-600 border-t-transparent" />
+              <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#4c573e] border-t-transparent" />
             </div>
           ) : editorMode === "preview" ? (
             <div className="p-6" data-color-mode="light">
@@ -854,17 +859,17 @@ function ConvertingIndicator() {
   const currentStep = steps.filter((s) => elapsed >= s.threshold).length - 1;
 
   return (
-    <div className="mt-4 rounded-lg border border-emerald-200 bg-emerald-50 p-4">
+    <div className="mt-4 rounded-lg border border-[#d8db6e] bg-[#fafd99]/10 p-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="h-5 w-5 animate-spin rounded-full border-2 border-emerald-600 border-t-transparent" />
+          <div className="h-5 w-5 animate-spin rounded-full border-2 border-[#4c573e] border-t-transparent" />
           <div>
-            <p className="text-sm font-medium text-emerald-800">
+            <p className="text-sm font-medium text-[#3b432f]">
               {steps[currentStep]?.label}...
             </p>
           </div>
         </div>
-        <span className="text-xs tabular-nums text-emerald-600">
+        <span className="text-xs tabular-nums text-[#4c573e]">
           {elapsed}s
         </span>
       </div>
@@ -873,7 +878,7 @@ function ConvertingIndicator() {
           <div
             key={i}
             className={`h-1.5 flex-1 rounded-full transition-colors duration-500 ${
-              i <= currentStep ? "bg-emerald-500" : "bg-emerald-200"
+              i <= currentStep ? "bg-[#4c573e]" : "bg-[#d8db6e]"
             }`}
           />
         ))}

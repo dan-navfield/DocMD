@@ -31,8 +31,8 @@ const FEATURES = [
 export function FeaturesStep({ onNext }: FeaturesStepProps) {
   return (
     <div className="flex flex-col items-center">
-      <h2 className="text-2xl font-bold text-slate-900">How DocMD works</h2>
-      <p className="mt-2 text-sm text-slate-500">
+      <h2 className="text-2xl font-bold text-[#3b432f]">How MDDoc works</h2>
+      <p className="mt-2 text-sm text-[#94908a]">
         Three simple steps to perfectly formatted documents
       </p>
 
@@ -40,21 +40,21 @@ export function FeaturesStep({ onNext }: FeaturesStepProps) {
         {FEATURES.map((feature, i) => (
           <div
             key={feature.title}
-            className="flex items-start gap-4 rounded-xl border border-slate-200 p-5"
+            className="flex items-start gap-4 rounded-xl border border-[#dddacc] p-5"
           >
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-100">
-              <feature.icon className="h-5 w-5 text-emerald-700" />
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#fafd99]/20">
+              <feature.icon className="h-5 w-5 text-[#3b432f]" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-slate-100 text-xs font-medium text-slate-600">
+                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#edebe0] text-xs font-medium text-[#6b665e]">
                   {i + 1}
                 </span>
-                <h3 className="font-semibold text-slate-900">
+                <h3 className="font-semibold text-[#3b432f]">
                   {feature.title}
                 </h3>
               </div>
-              <p className="mt-1 text-sm text-slate-500">
+              <p className="mt-1 text-sm text-[#94908a]">
                 {feature.description}
               </p>
             </div>
@@ -64,7 +64,8 @@ export function FeaturesStep({ onNext }: FeaturesStepProps) {
 
       <Button
         onClick={onNext}
-        className="mt-8 h-11 bg-[#fafd99] hover:bg-[#f0f47a] text-[#3b432f] text-sm font-medium px-8"
+        className="mt-8 h-11 bg-[#fafd99] hover:bg-[#f0f47a] text-sm font-medium px-8"
+        style={{ color: "#3b432f" }}
       >
         Got it, let&apos;s start
       </Button>

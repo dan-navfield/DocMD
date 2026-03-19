@@ -107,10 +107,10 @@ export function ConversionStep({
 
   return (
     <div className="flex flex-col items-center">
-      <h2 className="text-2xl font-bold text-slate-900">
+      <h2 className="text-2xl font-bold text-[#3b432f]">
         Try your first conversion
       </h2>
-      <p className="mt-2 text-sm text-slate-500 text-center max-w-md">
+      <p className="mt-2 text-sm text-[#94908a] text-center max-w-md">
         {canConvert
           ? "Edit the sample markdown below, then convert it to a Word document."
           : "You can try a conversion after setting up a template and mapping."}
@@ -128,16 +128,16 @@ export function ConversionStep({
         )}
 
         {converted ? (
-          <div className="flex flex-col items-center gap-4 rounded-xl border border-emerald-200 bg-emerald-50 p-6">
-            <CheckCircle className="h-8 w-8 text-emerald-600" />
-            <p className="font-medium text-emerald-800">
+          <div className="flex flex-col items-center gap-4 rounded-xl border border-[#d8db6e] bg-[#fafd99]/10 p-6">
+            <CheckCircle className="h-8 w-8 text-[#4c573e]" />
+            <p className="font-medium text-[#3b432f]">
               Document converted successfully!
             </p>
             <Button
               onClick={handleDownload}
               disabled={downloading}
               variant="outline"
-              className="border-emerald-300 text-emerald-700 hover:bg-emerald-100"
+              className="border-[#d8db6e] text-[#3b432f] hover:bg-[#fafd99]/20"
             >
               {downloading ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -154,8 +154,8 @@ export function ConversionStep({
               <span
                 className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs ${
                   templateId
-                    ? "bg-emerald-100 text-emerald-700"
-                    : "bg-slate-100 text-slate-400"
+                    ? "bg-[#fafd99]/20 text-[#3b432f]"
+                    : "bg-[#edebe0] text-[#94908a]"
                 }`}
               >
                 <FileText className="h-3 w-3" />
@@ -164,8 +164,8 @@ export function ConversionStep({
               <span
                 className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs ${
                   mappingId
-                    ? "bg-emerald-100 text-emerald-700"
-                    : "bg-slate-100 text-slate-400"
+                    ? "bg-[#fafd99]/20 text-[#3b432f]"
+                    : "bg-[#edebe0] text-[#94908a]"
                 }`}
               >
                 {mappingId ? "Mapping selected" : "No mapping"}
@@ -176,7 +176,7 @@ export function ConversionStep({
             <textarea
               value={markdown}
               onChange={(e) => setMarkdown(e.target.value)}
-              className="h-56 w-full rounded-xl border border-slate-200 p-4 font-mono text-sm text-slate-700 focus:border-emerald-400 focus:outline-none focus:ring-1 focus:ring-emerald-400 resize-none"
+              className="h-56 w-full rounded-xl border border-[#dddacc] p-4 font-mono text-sm text-[#44403a] focus:border-[#6b7f5a] focus:outline-none focus:ring-1 focus:ring-[#6b7f5a] resize-none"
               placeholder="Paste your markdown here..."
             />
           </>
@@ -195,7 +195,8 @@ export function ConversionStep({
           <Button
             onClick={handleConvert}
             disabled={converting || !markdown.trim()}
-            className="h-11 bg-[#fafd99] hover:bg-[#f0f47a] text-[#3b432f] text-sm font-medium px-8"
+            className="h-11 bg-[#fafd99] hover:bg-[#f0f47a] text-sm font-medium px-8"
+            style={{ color: "#3b432f" }}
           >
             {converting ? (
               <>
@@ -210,7 +211,8 @@ export function ConversionStep({
         {(converted || !canConvert) && (
           <Button
             onClick={onNext}
-            className="h-11 bg-[#fafd99] hover:bg-[#f0f47a] text-[#3b432f] text-sm font-medium px-8"
+            className="h-11 bg-[#fafd99] hover:bg-[#f0f47a] text-sm font-medium px-8"
+            style={{ color: "#3b432f" }}
           >
             Continue
           </Button>
@@ -218,7 +220,7 @@ export function ConversionStep({
         {!converted && canConvert && (
           <button
             onClick={onNext}
-            className="text-sm text-slate-400 hover:text-slate-600"
+            className="text-sm text-[#94908a] hover:text-[#6b665e]"
           >
             Skip for now
           </button>

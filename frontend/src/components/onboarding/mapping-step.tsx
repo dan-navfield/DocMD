@@ -54,10 +54,10 @@ export function MappingStep({ templateId, onNext }: MappingStepProps) {
 
   return (
     <div className="flex flex-col items-center">
-      <h2 className="text-2xl font-bold text-slate-900">
+      <h2 className="text-2xl font-bold text-[#3b432f]">
         Create your first mapping
       </h2>
-      <p className="mt-2 text-sm text-slate-500 text-center max-w-md">
+      <p className="mt-2 text-sm text-[#94908a] text-center max-w-md">
         {templateId
           ? "We'll auto-match your template's styles to Markdown elements."
           : "We'll create a mapping with sensible defaults. You can customise it later."}
@@ -65,21 +65,21 @@ export function MappingStep({ templateId, onNext }: MappingStepProps) {
 
       <div className="mt-8 w-full max-w-md space-y-4">
         {created ? (
-          <div className="flex flex-col items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-6">
-            <CheckCircle className="h-8 w-8 text-emerald-600" />
-            <p className="font-medium text-emerald-800">
+          <div className="flex flex-col items-center gap-3 rounded-xl border border-[#d8db6e] bg-[#fafd99]/10 p-6">
+            <CheckCircle className="h-8 w-8 text-[#4c573e]" />
+            <p className="font-medium text-[#3b432f]">
               Mapping created successfully!
             </p>
-            <p className="text-sm text-emerald-600">{mappingName}</p>
+            <p className="text-sm text-[#4c573e]">{mappingName}</p>
           </div>
         ) : (
           <>
             {/* Style preview if template was uploaded */}
             {templateId && styles.length > 0 && (
-              <div className="rounded-xl border border-slate-200 p-4">
+              <div className="rounded-xl border border-[#dddacc] p-4">
                 <div className="flex items-center gap-2 mb-3">
-                  <GitBranch className="h-4 w-4 text-emerald-600" />
-                  <span className="text-sm font-medium text-slate-700">
+                  <GitBranch className="h-4 w-4 text-[#4c573e]" />
+                  <span className="text-sm font-medium text-[#44403a]">
                     Template styles detected
                   </span>
                 </div>
@@ -87,13 +87,13 @@ export function MappingStep({ templateId, onNext }: MappingStepProps) {
                   {styles.slice(0, 12).map((style) => (
                     <span
                       key={style}
-                      className="rounded-md bg-slate-100 px-2 py-0.5 text-xs text-slate-600"
+                      className="rounded-md bg-[#edebe0] px-2 py-0.5 text-xs text-[#6b665e]"
                     >
                       {style}
                     </span>
                   ))}
                   {styles.length > 12 && (
-                    <span className="rounded-md bg-slate-100 px-2 py-0.5 text-xs text-slate-400">
+                    <span className="rounded-md bg-[#edebe0] px-2 py-0.5 text-xs text-[#94908a]">
                       +{styles.length - 12} more
                     </span>
                   )}
@@ -103,15 +103,15 @@ export function MappingStep({ templateId, onNext }: MappingStepProps) {
 
             {loadingStyles && (
               <div className="flex items-center justify-center py-4">
-                <Loader2 className="h-5 w-5 animate-spin text-slate-400" />
-                <span className="ml-2 text-sm text-slate-500">
+                <Loader2 className="h-5 w-5 animate-spin text-[#94908a]" />
+                <span className="ml-2 text-sm text-[#94908a]">
                   Analyzing template styles...
                 </span>
               </div>
             )}
 
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-slate-700">
+              <label className="mb-1.5 block text-sm font-medium text-[#44403a]">
                 Mapping name
               </label>
               <Input
@@ -137,7 +137,8 @@ export function MappingStep({ templateId, onNext }: MappingStepProps) {
           <Button
             onClick={handleCreate}
             disabled={creating || !mappingName}
-            className="h-11 bg-[#fafd99] hover:bg-[#f0f47a] text-[#3b432f] text-sm font-medium px-8"
+            className="h-11 bg-[#fafd99] hover:bg-[#f0f47a] text-sm font-medium px-8"
+            style={{ color: "#3b432f" }}
           >
             {creating ? (
               <>
@@ -152,7 +153,8 @@ export function MappingStep({ templateId, onNext }: MappingStepProps) {
         {created && (
           <Button
             onClick={() => onNext(createdId)}
-            className="h-11 bg-[#fafd99] hover:bg-[#f0f47a] text-[#3b432f] text-sm font-medium px-8"
+            className="h-11 bg-[#fafd99] hover:bg-[#f0f47a] text-sm font-medium px-8"
+            style={{ color: "#3b432f" }}
           >
             Continue
           </Button>
@@ -160,7 +162,7 @@ export function MappingStep({ templateId, onNext }: MappingStepProps) {
         {!created && (
           <button
             onClick={() => onNext(null)}
-            className="text-sm text-slate-400 hover:text-slate-600"
+            className="text-sm text-[#94908a] hover:text-[#6b665e]"
           >
             Skip for now
           </button>

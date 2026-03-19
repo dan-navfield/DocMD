@@ -1,6 +1,6 @@
 import { supabase } from "./supabase";
 import type {
-  DocMDDocument,
+  MDDocDocument,
   Template,
   Mapping,
   Project,
@@ -48,16 +48,16 @@ async function request<T>(
 export const documents = {
   list: (params?: Record<string, string>) => {
     const query = params ? "?" + new URLSearchParams(params).toString() : "";
-    return request<DocMDDocument[]>(`/api/documents${query}`);
+    return request<MDDocDocument[]>(`/api/documents${query}`);
   },
-  get: (id: string) => request<DocMDDocument>(`/api/documents/${id}`),
+  get: (id: string) => request<MDDocDocument>(`/api/documents/${id}`),
   getContent: async (id: string): Promise<string> => {
     const headers = await getAuthHeaders();
     const res = await fetch(`${API_URL}/api/documents/${id}/content`, { headers });
     if (!res.ok) throw new Error("Failed to fetch content");
     return res.text();
   },
-  updateContent: async (id: string, markdown: string): Promise<DocMDDocument> => {
+  updateContent: async (id: string, markdown: string): Promise<MDDocDocument> => {
     const headers = await getAuthHeaders();
     const res = await fetch(`${API_URL}/api/documents/${id}/content`, {
       method: "PUT",
@@ -76,10 +76,10 @@ export const documents = {
       body: data,
     });
     if (!res.ok) throw new Error("Failed to create document");
-    return res.json() as Promise<DocMDDocument>;
+    return res.json() as Promise<MDDocDocument>;
   },
-  update: (id: string, data: Partial<DocMDDocument>) =>
-    request<DocMDDocument>(`/api/documents/${id}`, {
+  update: (id: string, data: Partial<MDDocDocument>) =>
+    request<MDDocDocument>(`/api/documents/${id}`, {
       method: "PATCH",
       body: JSON.stringify(data),
     }),

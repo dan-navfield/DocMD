@@ -28,8 +28,8 @@ export function IconNav() {
   const pathname = usePathname();
 
   return (
-    <div className="flex h-full w-14 flex-col items-center border-r bg-slate-50 py-4">
-      <div className="mb-6 flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-600 text-white font-bold text-sm">
+    <div className="flex h-full w-14 flex-col items-center border-r bg-[#fdfcf5] py-4">
+      <div className="mb-6 flex h-8 w-8 items-center justify-center rounded-lg bg-[#4c573e] text-white font-bold text-sm">
         MD
       </div>
 
@@ -46,8 +46,8 @@ export function IconNav() {
                   className={cn(
                     "flex h-10 w-10 items-center justify-center rounded-lg transition-colors",
                     isActive
-                      ? "bg-emerald-100 text-emerald-700"
-                      : "text-slate-500 hover:bg-slate-100 hover:text-slate-700"
+                      ? "bg-[#fafd99]/20 text-[#3b432f]"
+                      : "text-[#94908a] hover:bg-[#edebe0] hover:text-[#3b432f]"
                   )}
                 >
                   <item.icon className="h-5 w-5" />

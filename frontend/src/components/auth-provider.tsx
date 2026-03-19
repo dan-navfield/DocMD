@@ -32,16 +32,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => subscription.unsubscribe();
   }, [pathname, router]);
 
-  useEffect(() => {
-    if (!loading && !session && !isPublicRoute) {
-      router.push("/login");
-    }
-  }, [loading, session, pathname, router, isPublicRoute]);
-
   if (loading) {
     return (
       <div className="flex h-screen items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-emerald-600 border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#4c573e] border-t-transparent" />
       </div>
     );
   }

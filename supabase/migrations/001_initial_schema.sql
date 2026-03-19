@@ -1,4 +1,4 @@
--- DocMD Initial Schema
+-- MDDoc Initial Schema
 -- All tables, enums, RLS policies, indexes, and storage buckets
 
 -- ============================================================

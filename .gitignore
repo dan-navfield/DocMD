@@ -38,3 +38,5 @@ supabase/.temp/
 
 # DigitalOcean app spec (contains secrets)
 .do/
+.vercel
+.env*.local

@@ -41,33 +41,33 @@ export function WelcomeStep({ userName, onNext }: WelcomeStepProps) {
 
   return (
     <div className="flex flex-col items-center text-center">
-      <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-100">
-        <span className="text-2xl font-bold text-emerald-700">MD</span>
+      <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#fafd99]/20">
+        <span className="text-2xl font-bold text-[#3b432f]">MD</span>
       </div>
 
-      <h1 className="text-3xl font-bold text-slate-900">Welcome to DocMD!</h1>
+      <h1 className="text-3xl font-bold text-[#3b432f]">Welcome to MDDoc!</h1>
 
-      <p className="mt-3 text-lg text-slate-600">
+      <p className="mt-3 text-lg text-[#6b665e]">
         Hi {displayName}, let&apos;s get you set up in under 2 minutes.
       </p>
 
       {loading ? (
         <div className="mt-4">
-          <Loader2 className="h-4 w-4 animate-spin text-slate-400" />
+          <Loader2 className="h-4 w-4 animate-spin text-[#94908a]" />
         </div>
       ) : (
         (planInfo || trialInfo) && (
-          <div className="mt-4 inline-flex items-center gap-2 rounded-lg bg-emerald-50 border border-emerald-200 px-4 py-2">
+          <div className="mt-4 inline-flex items-center gap-2 rounded-lg bg-[#fafd99]/10 border border-[#d8db6e] px-4 py-2">
             {planInfo && (
-              <span className="text-sm font-medium text-emerald-800">
+              <span className="text-sm font-medium text-[#3b432f]">
                 {planInfo}
               </span>
             )}
             {planInfo && trialInfo && (
-              <span className="text-emerald-300">|</span>
+              <span className="text-[#d8db6e]">|</span>
             )}
             {trialInfo && (
-              <span className="text-sm text-emerald-600">{trialInfo}</span>
+              <span className="text-sm text-[#4c573e]">{trialInfo}</span>
             )}
           </div>
         )
@@ -75,7 +75,8 @@ export function WelcomeStep({ userName, onNext }: WelcomeStepProps) {
 
       <Button
         onClick={onNext}
-        className="mt-8 h-11 bg-[#fafd99] hover:bg-[#f0f47a] text-[#3b432f] text-sm font-medium px-8"
+        className="mt-8 h-11 bg-[#fafd99] hover:bg-[#f0f47a] text-sm font-medium px-8"
+        style={{ color: "#3b432f" }}
       >
         Let&apos;s go
       </Button>

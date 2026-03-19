@@ -15,6 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { FileUpload } from "@/components/shared/file-upload";
 import { templates as templatesApi } from "@/lib/api";
+import { toast } from "sonner";
 import type { Template } from "@/lib/types";
 
 export default function TemplatesPage() {
@@ -33,7 +34,7 @@ export default function TemplatesPage() {
     templatesApi
       .list()
       .then(setTemplates)
-      .catch(() => [])
+      .catch(() => toast.error("Failed to load templates"))
       .finally(() => setLoading(false));
   }, []);
 
@@ -51,8 +52,8 @@ export default function TemplatesPage() {
       setNewName("");
       setNewDescription("");
       setNewFile(null);
-    } catch (e) {
-      console.error(e);
+    } catch {
+      toast.error("Failed to upload template");
     } finally {
       setUploading(false);
     }
@@ -63,29 +64,33 @@ export default function TemplatesPage() {
       const result = await templatesApi.getStyles(templateId);
       setSelectedStyles(result.styles);
       setStylesTemplate(templateId);
-    } catch (e) {
-      console.error(e);
+    } catch {
+      toast.error("Failed to load template styles");
     }
   };
 
   const handleDelete = async (id: string) => {
     if (!confirm("Delete this template?")) return;
-    await templatesApi.delete(id);
-    setTemplates((prev) => prev.filter((t) => t.id !== id));
+    try {
+      await templatesApi.delete(id);
+      setTemplates((prev) => prev.filter((t) => t.id !== id));
+    } catch {
+      toast.error("Failed to delete template");
+    }
   };
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold text-slate-900">Templates</h1>
-          <p className="text-sm text-slate-600">
+          <h1 className="text-xl font-bold text-[#3b432f]">Templates</h1>
+          <p className="text-sm text-[#6b665e]">
             Word templates that define your output document styles.
           </p>
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-emerald-600 hover:bg-emerald-700">
+            <Button className="bg-[#4c573e] hover:bg-[#3b432f]">
               <Plus className="mr-2 h-4 w-4" />
               Upload Template
             </Button>
@@ -119,7 +124,7 @@ export default function TemplatesPage() {
                 label="Upload .docx template"
               />
               <Button
-                className="w-full bg-emerald-600 hover:bg-emerald-700"
+                className="w-full bg-[#4c573e] hover:bg-[#3b432f]"
                 disabled={!newName || !newFile || uploading}
                 onClick={handleUpload}
               >
@@ -132,14 +137,14 @@ export default function TemplatesPage() {
 
       {loading ? (
         <div className="flex items-center justify-center py-12">
-          <div className="h-6 w-6 animate-spin rounded-full border-2 border-emerald-600 border-t-transparent" />
+          <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#4c573e] border-t-transparent" />
         </div>
       ) : templates.length === 0 ? (
         <Card>
           <CardContent className="flex flex-col items-center py-12 text-center">
-            <LayoutTemplate className="mb-3 h-12 w-12 text-slate-300" />
-            <h3 className="text-base font-medium text-slate-700">No templates yet</h3>
-            <p className="mt-1 text-sm text-slate-500">
+            <LayoutTemplate className="mb-3 h-12 w-12 text-[#94908a]" />
+            <h3 className="text-base font-medium text-[#44403a]">No templates yet</h3>
+            <p className="mt-1 text-sm text-[#94908a]">
               Upload a .docx Word template to get started.
             </p>
           </CardContent>
@@ -161,7 +166,7 @@ export default function TemplatesPage() {
                     variant="ghost"
                     size="sm"
                     onClick={(e) => { e.stopPropagation(); handleDelete(template.id); }}
-                    className="h-8 w-8 p-0 text-slate-400 hover:text-red-500"
+                    className="h-8 w-8 p-0 text-[#94908a] hover:text-red-500"
                   >
                     <Trash2 className="h-3.5 w-3.5" />
                   </Button>
@@ -169,10 +174,10 @@ export default function TemplatesPage() {
                 <CardTitle className="text-base">{template.name}</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-slate-500 mb-3">
+                <p className="text-sm text-[#94908a] mb-3">
                   {template.description || "No description"}
                 </p>
-                <div className="flex items-center justify-between text-xs text-slate-400">
+                <div className="flex items-center justify-between text-xs text-[#94908a]">
                   <span>v{template.version}</span>
                   <Button
                     variant="ghost"
@@ -186,21 +191,21 @@ export default function TemplatesPage() {
                 </div>
 
                 {stylesTemplate === template.id && selectedStyles && (
-                  <div className="mt-3 rounded-md bg-slate-50 p-3">
-                    <p className="mb-2 text-xs font-medium text-slate-600">
+                  <div className="mt-3 rounded-md bg-[#fdfcf5] p-3">
+                    <p className="mb-2 text-xs font-medium text-[#6b665e]">
                       Available Styles ({selectedStyles.length})
                     </p>
                     <div className="flex flex-wrap gap-1">
                       {selectedStyles.slice(0, 15).map((s) => (
                         <span
                           key={s}
-                          className="rounded bg-white px-1.5 py-0.5 text-xs text-slate-600 border"
+                          className="rounded bg-white px-1.5 py-0.5 text-xs text-[#6b665e] border"
                         >
                           {s}
                         </span>
                       ))}
                       {selectedStyles.length > 15 && (
-                        <span className="text-xs text-slate-400">
+                        <span className="text-xs text-[#94908a]">
                           +{selectedStyles.length - 15} more
                         </span>
                       )}

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/lib/supabase";
 import { billing, onboarding } from "@/lib/api";
+import { toast } from "sonner";
 import {
   FileText,
   ArrowRight,
@@ -33,11 +34,11 @@ export default function LoginPage() {
   useEffect(() => {
     const urlTier = searchParams.get("tier");
     if (urlTier && (urlTier === "solo" || urlTier === "team")) {
-      sessionStorage.setItem("docmd_tier", urlTier);
+      sessionStorage.setItem("mddoc_tier", urlTier);
     }
     const urlInterval = searchParams.get("interval");
     if (urlInterval && (urlInterval === "monthly" || urlInterval === "annual")) {
-      sessionStorage.setItem("docmd_interval", urlInterval);
+      sessionStorage.setItem("mddoc_interval", urlInterval);
     }
   }, [searchParams]);
 
@@ -61,12 +62,12 @@ export default function LoginPage() {
 
   const handlePostAuth = async () => {
     // 1. Check for stored tier → Stripe checkout with success_url=/onboarding
-    const storedTier = sessionStorage.getItem("docmd_tier");
+    const storedTier = sessionStorage.getItem("mddoc_tier");
     if (storedTier && (storedTier === "solo" || storedTier === "team")) {
-      const storedInterval = sessionStorage.getItem("docmd_interval");
+      const storedInterval = sessionStorage.getItem("mddoc_interval");
       const interval = storedInterval === "annual" ? "year" : "month";
-      sessionStorage.removeItem("docmd_tier");
-      sessionStorage.removeItem("docmd_interval");
+      sessionStorage.removeItem("mddoc_tier");
+      sessionStorage.removeItem("mddoc_interval");
       try {
         const { checkout_url } = await billing.createCheckoutSession(
           storedTier,
@@ -76,8 +77,8 @@ export default function LoginPage() {
         );
         window.location.href = checkout_url;
         return;
-      } catch (err) {
-        console.error("Failed to create checkout session:", err);
+      } catch {
+        toast.error("Failed to create checkout session");
         // Fall through to onboarding check
       }
     }
@@ -89,8 +90,8 @@ export default function LoginPage() {
         router.push("/onboarding");
         return;
       }
-    } catch (err) {
-      console.error("Failed to check onboarding status:", err);
+    } catch {
+      toast.error("Failed to check onboarding status");
       // Fall through to dashboard
     }
 
@@ -102,13 +103,13 @@ export default function LoginPage() {
   return (
     <div className="flex min-h-screen">
       {/* Left panel — branding */}
-      <div className="hidden lg:flex lg:w-[480px] xl:w-[560px] flex-col justify-between bg-emerald-700 p-10 text-white">
+      <div className="hidden lg:flex lg:w-[480px] xl:w-[560px] flex-col justify-between bg-[#3b432f] p-10 text-white">
         <div>
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 backdrop-blur font-bold text-lg">
               MD
             </div>
-            <span className="text-xl font-semibold">DocMD</span>
+            <span className="text-xl font-semibold">MDDoc</span>
           </div>
         </div>
 
@@ -119,9 +120,9 @@ export default function LoginPage() {
               <br />
               Word out.
               <br />
-              <span className="text-emerald-200">Perfectly styled.</span>
+              <span className="text-[#fafd99]">Perfectly styled.</span>
             </h1>
-            <p className="mt-4 text-lg text-emerald-100/80 leading-relaxed">
+            <p className="mt-4 text-lg text-white/70 leading-relaxed">
               Turn Markdown into professionally formatted Word documents
               that match your organisation&apos;s templates — every time.
             </p>
@@ -147,18 +148,18 @@ export default function LoginPage() {
             ].map((feature) => (
               <div key={feature.title} className="flex gap-3">
                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/10">
-                  <feature.icon className="h-4 w-4 text-emerald-200" />
+                  <feature.icon className="h-4 w-4 text-[#fafd99]" />
                 </div>
                 <div>
                   <p className="font-medium text-sm">{feature.title}</p>
-                  <p className="text-sm text-emerald-100/60">{feature.desc}</p>
+                  <p className="text-sm text-white/50">{feature.desc}</p>
                 </div>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="flex items-center gap-2 text-sm text-emerald-200/50">
+        <div className="flex items-center gap-2 text-sm text-[#fafd99]/50">
           <FileText className="h-4 w-4" />
           <span>Trusted by teams who care about document quality</span>
         </div>
@@ -169,24 +170,24 @@ export default function LoginPage() {
         <div className="w-full max-w-[400px]">
           {/* Mobile logo */}
           <div className="mb-8 lg:hidden flex items-center justify-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-600 font-bold text-lg text-white">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#4c573e] font-bold text-lg text-white">
               MD
             </div>
-            <span className="text-xl font-semibold text-slate-900">DocMD</span>
+            <span className="text-xl font-semibold text-[#3b432f]">MDDoc</span>
           </div>
 
           <div className="mb-8">
-            <h2 className="text-2xl font-bold text-slate-900">Welcome back</h2>
-            <p className="mt-1.5 text-sm text-slate-500">
-              Sign in to continue to DocMD
+            <h2 className="text-2xl font-bold text-[#3b432f]">Welcome back</h2>
+            <p className="mt-1.5 text-sm text-[#94908a]">
+              Sign in to continue to MDDoc
             </p>
           </div>
 
           {/* Success message */}
           {success && (
-            <div className="mb-6 flex items-start gap-3 rounded-lg bg-emerald-50 border border-emerald-200 p-4">
-              <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
-              <p className="text-sm text-emerald-800">{success}</p>
+            <div className="mb-6 flex items-start gap-3 rounded-lg bg-[#fafd99]/10 border border-[#d8db6e] p-4">
+              <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-[#6b7f5a]" />
+              <p className="text-sm text-[#3b432f]">{success}</p>
             </div>
           )}
 
@@ -200,11 +201,11 @@ export default function LoginPage() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-slate-700">
+              <label className="mb-1.5 block text-sm font-medium text-[#44403a]">
                 Email
               </label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#94908a]" />
                 <Input
                   type="email"
                   placeholder="you@company.com"
@@ -219,18 +220,33 @@ export default function LoginPage() {
 
             <div>
               <div className="mb-1.5 flex items-center justify-between">
-                <label className="text-sm font-medium text-slate-700">
+                <label className="text-sm font-medium text-[#44403a]">
                   Password
                 </label>
                 <button
                   type="button"
-                  className="text-xs text-emerald-600 hover:text-emerald-700"
+                  className="text-xs text-[#6b7f5a] hover:text-[#3b432f]"
+                  onClick={async () => {
+                    if (!email) {
+                      setError("Enter your email address first, then click Forgot password.");
+                      return;
+                    }
+                    setError("");
+                    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+                      redirectTo: `${window.location.origin}/login`,
+                    });
+                    if (error) {
+                      setError(error.message);
+                    } else {
+                      setSuccess("Password reset email sent. Check your inbox.");
+                    }
+                  }}
                 >
                   Forgot password?
                 </button>
               </div>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#94908a]" />
                 <Input
                   type="password"
                   placeholder="Enter your password"
@@ -247,7 +263,8 @@ export default function LoginPage() {
             <Button
               type="submit"
               disabled={loading || !email || !password}
-              className="h-11 w-full bg-[#fafd99] hover:bg-[#f0f47a] text-[#3b432f] text-sm font-medium"
+              className="h-11 w-full bg-[#fafd99] hover:bg-[#f0f47a] text-sm font-medium"
+              style={{ color: "#3b432f" }}
             >
               {loading ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -259,11 +276,11 @@ export default function LoginPage() {
           </form>
 
           <div className="mt-6 text-center">
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-[#94908a]">
               Don&apos;t have an account?{" "}
               <Link
                 href="/signup"
-                className="font-medium text-emerald-600 hover:text-emerald-700"
+                className="font-medium text-[#6b7f5a] hover:text-[#3b432f]"
               >
                 Sign up
               </Link>
@@ -271,8 +288,8 @@ export default function LoginPage() {
           </div>
 
           <div className="mt-8 border-t pt-6">
-            <p className="text-center text-xs text-slate-400">
-              By continuing, you agree to DocMD&apos;s Terms of Service and Privacy Policy.
+            <p className="text-center text-xs text-[#94908a]">
+              By continuing, you agree to MDDoc&apos;s Terms of Service and Privacy Policy.
             </p>
           </div>
         </div>

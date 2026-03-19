@@ -191,16 +191,16 @@ export function FontLibrary({ compact = false }: { compact?: boolean }) {
           className={cn(
             "flex items-center justify-center gap-2 rounded-lg border-2 border-dashed p-3 transition-colors",
             dragOver
-              ? "border-emerald-400 bg-emerald-50"
-              : "border-slate-200 hover:border-slate-300"
+              ? "border-[#6b7f5a] bg-[#fafd99]/10"
+              : "border-[#dddacc] hover:border-[#dddacc]"
           )}
         >
-          <Upload className="h-4 w-4 text-slate-400" />
-          <span className="text-xs text-slate-500">
+          <Upload className="h-4 w-4 text-[#94908a]" />
+          <span className="text-xs text-[#94908a]">
             Drop font files or{" "}
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="font-medium text-emerald-600 hover:underline"
+              className="font-medium text-[#4c573e] hover:underline"
             >
               browse
             </button>
@@ -227,10 +227,10 @@ export function FontLibrary({ compact = false }: { compact?: boolean }) {
         {/* Font list */}
         {loading ? (
           <div className="flex items-center justify-center py-3">
-            <Loader2 className="h-4 w-4 animate-spin text-slate-400" />
+            <Loader2 className="h-4 w-4 animate-spin text-[#94908a]" />
           </div>
         ) : fontList.length === 0 ? (
-          <p className="text-center text-xs text-slate-400 py-2">
+          <p className="text-center text-xs text-[#94908a] py-2">
             No fonts uploaded yet
           </p>
         ) : (
@@ -238,20 +238,20 @@ export function FontLibrary({ compact = false }: { compact?: boolean }) {
             {fontList.map((font) => (
               <div
                 key={font.id}
-                className="flex items-center justify-between rounded-md px-2 py-1.5 hover:bg-slate-50"
+                className="flex items-center justify-between rounded-md px-2 py-1.5 hover:bg-[#fdfcf5]"
               >
                 <div className="flex items-center gap-2 min-w-0">
-                  <Type className="h-3.5 w-3.5 shrink-0 text-slate-400" />
-                  <span className="truncate text-xs font-medium text-slate-700">
+                  <Type className="h-3.5 w-3.5 shrink-0 text-[#94908a]" />
+                  <span className="truncate text-xs font-medium text-[#44403a]">
                     {font.name}
                   </span>
-                  <span className="text-xs text-slate-400">
+                  <span className="text-xs text-[#94908a]">
                     {formatBytes(font.file_size_bytes)}
                   </span>
                 </div>
                 <button
                   onClick={() => handleDelete(font.id)}
-                  className="shrink-0 p-1 text-slate-300 hover:text-red-500"
+                  className="shrink-0 p-1 text-[#94908a] hover:text-red-500"
                 >
                   <Trash2 className="h-3 w-3" />
                 </button>
@@ -267,10 +267,10 @@ export function FontLibrary({ compact = false }: { compact?: boolean }) {
   return (
     <div className="space-y-6">
       {/* Upload area */}
-      <div className="rounded-xl border border-slate-200 bg-white">
+      <div className="rounded-xl border border-[#dddacc] bg-white">
         <div className="border-b px-6 py-4">
-          <h2 className="text-sm font-semibold text-slate-900">Upload Fonts</h2>
-          <p className="mt-0.5 text-xs text-slate-500">
+          <h2 className="text-sm font-semibold text-[#3b432f]">Upload Fonts</h2>
+          <p className="mt-0.5 text-xs text-[#94908a]">
             Upload .ttf, .otf, .woff, or .woff2 files to make them available in
             templates
           </p>
@@ -286,24 +286,24 @@ export function FontLibrary({ compact = false }: { compact?: boolean }) {
             className={cn(
               "flex flex-col items-center justify-center gap-3 rounded-lg border-2 border-dashed p-8 transition-colors",
               dragOver
-                ? "border-emerald-400 bg-emerald-50"
-                : "border-slate-200 hover:border-slate-300"
+                ? "border-[#6b7f5a] bg-[#fafd99]/10"
+                : "border-[#dddacc] hover:border-[#dddacc]"
             )}
           >
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-100">
-              <Upload className="h-5 w-5 text-slate-500" />
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#edebe0]">
+              <Upload className="h-5 w-5 text-[#94908a]" />
             </div>
             <div className="text-center">
-              <p className="text-sm font-medium text-slate-700">
+              <p className="text-sm font-medium text-[#44403a]">
                 Drop font files here or{" "}
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="text-emerald-600 hover:underline"
+                  className="text-[#4c573e] hover:underline"
                 >
                   browse
                 </button>
               </p>
-              <p className="mt-1 text-xs text-slate-400">
+              <p className="mt-1 text-xs text-[#94908a]">
                 Supports TTF, OTF, WOFF, WOFF2, and ZIP archives
               </p>
             </div>
@@ -329,21 +329,21 @@ export function FontLibrary({ compact = false }: { compact?: boolean }) {
       </div>
 
       {/* Font list */}
-      <div className="rounded-xl border border-slate-200 bg-white">
+      <div className="rounded-xl border border-[#dddacc] bg-white">
         <div className="border-b px-6 py-4">
-          <h2 className="text-sm font-semibold text-slate-900">
+          <h2 className="text-sm font-semibold text-[#3b432f]">
             Installed Fonts ({fontList.length})
           </h2>
         </div>
         {loading ? (
           <div className="flex items-center justify-center py-10">
-            <Loader2 className="h-5 w-5 animate-spin text-slate-400" />
+            <Loader2 className="h-5 w-5 animate-spin text-[#94908a]" />
           </div>
         ) : fontList.length === 0 ? (
           <div className="px-6 py-10 text-center">
-            <Type className="mx-auto h-8 w-8 text-slate-300" />
-            <p className="mt-2 text-sm text-slate-500">No fonts uploaded yet</p>
-            <p className="text-xs text-slate-400">
+            <Type className="mx-auto h-8 w-8 text-[#94908a]" />
+            <p className="mt-2 text-sm text-[#94908a]">No fonts uploaded yet</p>
+            <p className="text-xs text-[#94908a]">
               Upload font files above to get started
             </p>
           </div>
@@ -355,14 +355,14 @@ export function FontLibrary({ compact = false }: { compact?: boolean }) {
                 className="flex items-center justify-between px-6 py-3.5"
               >
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-100">
-                    <FileText className="h-4 w-4 text-slate-500" />
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#edebe0]">
+                    <FileText className="h-4 w-4 text-[#94908a]" />
                   </div>
                   <div className="min-w-0">
-                    <p className="truncate text-sm font-medium text-slate-900">
+                    <p className="truncate text-sm font-medium text-[#3b432f]">
                       {font.name}
                     </p>
-                    <p className="text-xs text-slate-400">
+                    <p className="text-xs text-[#94908a]">
                       {font.filename} &middot; {formatBytes(font.file_size_bytes)}
                     </p>
                   </div>
@@ -371,7 +371,7 @@ export function FontLibrary({ compact = false }: { compact?: boolean }) {
                   variant="ghost"
                   size="sm"
                   onClick={() => handleDelete(font.id)}
-                  className="text-slate-400 hover:text-red-500 hover:bg-red-50"
+                  className="text-[#94908a] hover:text-red-500 hover:bg-red-50"
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
@@ -394,20 +394,20 @@ function JobStatusRow({ job, size }: { job: UploadJob; size: "sm" | "md" }) {
       className={cn(
         "flex items-center gap-2 rounded-lg px-3",
         isSmall ? "py-1.5" : "py-2",
-        job.status === "done" && "bg-emerald-50 border border-emerald-200",
+        job.status === "done" && "bg-[#fafd99]/10 border border-[#d8db6e]",
         job.status === "error" && "bg-red-50 border border-red-200",
         job.status === "uploading" && "bg-blue-50 border border-blue-200",
-        job.status === "queued" && "bg-slate-50 border border-slate-200"
+        job.status === "queued" && "bg-[#fdfcf5] border border-[#dddacc]"
       )}
     >
       {job.status === "queued" && (
-        <Package className={cn(iconCls, "text-slate-400")} />
+        <Package className={cn(iconCls, "text-[#94908a]")} />
       )}
       {job.status === "uploading" && (
         <Loader2 className={cn(iconCls, "animate-spin text-blue-500")} />
       )}
       {job.status === "done" && (
-        <CheckCircle className={cn(iconCls, "text-emerald-500")} />
+        <CheckCircle className={cn(iconCls, "text-[#4c573e]")} />
       )}
       {job.status === "error" && (
         <AlertCircle className={cn(iconCls, "text-red-500")} />
@@ -416,10 +416,10 @@ function JobStatusRow({ job, size }: { job: UploadJob; size: "sm" | "md" }) {
       <span
         className={cn(
           textCls,
-          job.status === "done" && "text-emerald-700",
+          job.status === "done" && "text-[#3b432f]",
           job.status === "error" && "text-red-700",
           job.status === "uploading" && "text-blue-700",
-          job.status === "queued" && "text-slate-500"
+          job.status === "queued" && "text-[#94908a]"
         )}
       >
         {job.status === "queued" && `Queued: ${job.label}`}

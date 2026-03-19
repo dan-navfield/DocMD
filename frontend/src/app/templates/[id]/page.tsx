@@ -25,6 +25,7 @@ import { templates as templatesApi } from "@/lib/api";
 import { useFontBridge } from "@/hooks/use-font-bridge";
 import { OnlyofficeEditor } from "@/components/onlyoffice-editor";
 import { FontLibrary } from "@/components/font-library";
+import { toast } from "sonner";
 import type { Template } from "@/lib/types";
 
 type PreviewMode = "docx" | "pdf" | "edit";
@@ -66,14 +67,14 @@ export default function TemplateDetailPage() {
 
   // Fetch template metadata + styles
   useEffect(() => {
-    templatesApi.get(templateId).then(setTemplate).catch(console.error);
+    templatesApi.get(templateId).then(setTemplate).catch(() => toast.error("Failed to load template"));
     templatesApi
       .getStyles(templateId)
       .then((r) => {
         setStyles(r.styles);
         setUsedStyles(r.used_styles);
       })
-      .catch(() => []);
+      .catch(() => toast.error("Failed to load template styles"));
   }, [templateId]);
 
   // Background: fetch .docx data for download + docx-preview
@@ -81,7 +82,7 @@ export default function TemplateDetailPage() {
     templatesApi
       .download(templateId)
       .then(setDocxData)
-      .catch(console.error);
+      .catch(() => toast.error("Failed to download template file"));
   }, [templateId]);
 
   // Background: fetch PDF preview via LibreOffice
@@ -90,7 +91,7 @@ export default function TemplateDetailPage() {
     templatesApi
       .preview(templateId)
       .then(setPdfUrl)
-      .catch(console.error)
+      .catch(() => toast.error("Failed to generate PDF preview"))
       .finally(() => setLoadingPdf(false));
   }, [templateId]);
 
@@ -158,8 +159,8 @@ export default function TemplateDetailPage() {
 
           setLoadingPreview(false);
         })
-        .catch((err) => {
-          console.error("docx-preview render error:", err);
+        .catch(() => {
+          toast.error("Failed to render document preview");
           if (!cancelled) setLoadingPreview(false);
         });
     });
@@ -251,12 +252,16 @@ export default function TemplateDetailPage() {
 
   const handleDelete = async () => {
     if (!confirm("Delete this template?")) return;
-    await templatesApi.delete(templateId);
-    router.push("/templates");
+    try {
+      await templatesApi.delete(templateId);
+      router.push("/templates");
+    } catch {
+      toast.error("Failed to delete template");
+    }
   };
 
   const handleEditorSaved = () => {
-    templatesApi.get(templateId).then(setTemplate).catch(console.error);
+    templatesApi.get(templateId).then(setTemplate).catch(() => toast.error("Failed to refresh template"));
     setDocxData(null);
     setPdfUrl((prev) => {
       if (prev) URL.revokeObjectURL(prev);
@@ -266,11 +271,11 @@ export default function TemplateDetailPage() {
     templatesApi
       .download(templateId)
       .then(setDocxData)
-      .catch(console.error);
+      .catch(() => toast.error("Failed to download updated template"));
     templatesApi
       .preview(templateId)
       .then(setPdfUrl)
-      .catch(console.error)
+      .catch(() => toast.error("Failed to regenerate PDF preview"))
       .finally(() => setLoadingPdf(false));
   };
 
@@ -323,7 +328,7 @@ export default function TemplateDetailPage() {
   if (!template) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-6 w-6 animate-spin rounded-full border-2 border-emerald-600 border-t-transparent" />
+        <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#4c573e] border-t-transparent" />
       </div>
     );
   }
@@ -340,7 +345,7 @@ export default function TemplateDetailPage() {
       <div className="flex items-center gap-4">
         <button
           onClick={() => router.push("/templates")}
-          className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-200 hover:text-slate-600"
+          className="flex h-8 w-8 items-center justify-center rounded-lg text-[#94908a] hover:bg-[#edebe0] hover:text-[#6b665e]"
         >
           <ArrowLeft className="h-4 w-4" />
         </button>
@@ -348,8 +353,8 @@ export default function TemplateDetailPage() {
           <LayoutTemplate className="h-5 w-5 text-blue-600" />
         </div>
         <div className="flex-1">
-          <h1 className="text-xl font-bold text-slate-900">{template.name}</h1>
-          <p className="text-sm text-slate-500">
+          <h1 className="text-xl font-bold text-[#3b432f]">{template.name}</h1>
+          <p className="text-sm text-[#94908a]">
             {template.description || "No description"}
           </p>
         </div>
@@ -371,7 +376,7 @@ export default function TemplateDetailPage() {
 
       {/* Template details — collapsible tabbed card */}
       <Card>
-        <div className="flex items-center border-b bg-slate-50 px-4 pt-2">
+        <div className="flex items-center border-b bg-[#fdfcf5] px-4 pt-2">
           <div className="flex items-center gap-1 flex-1">
             {([
               { id: "info" as DetailTab, label: "Info", icon: Info },
@@ -387,8 +392,8 @@ export default function TemplateDetailPage() {
                 className={cn(
                   "flex items-center gap-1.5 border-b-2 px-3 py-2.5 text-sm font-medium transition-colors",
                   detailTab === tab.id && detailsOpen
-                    ? "border-emerald-600 text-emerald-700"
-                    : "border-transparent text-slate-500 hover:text-slate-700"
+                    ? "border-[#4c573e] text-[#3b432f]"
+                    : "border-transparent text-[#94908a] hover:text-[#44403a]"
                 )}
               >
                 <tab.icon className="h-3.5 w-3.5" />
@@ -398,7 +403,7 @@ export default function TemplateDetailPage() {
           </div>
           <button
             onClick={() => setDetailsOpen(!detailsOpen)}
-            className="flex h-7 w-7 items-center justify-center rounded-md text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors"
+            className="flex h-7 w-7 items-center justify-center rounded-md text-[#94908a] hover:bg-[#edebe0] hover:text-[#6b665e] transition-colors"
           >
             {detailsOpen ? (
               <ChevronUp className="h-4 w-4" />
@@ -418,17 +423,17 @@ export default function TemplateDetailPage() {
               {detailTab === "info" && (
                 <div className="grid grid-cols-3 gap-6 text-sm">
                   <div>
-                    <span className="text-slate-500">Version</span>
+                    <span className="text-[#94908a]">Version</span>
                     <p className="font-medium">v{template.version}</p>
                   </div>
                   <div>
-                    <span className="text-slate-500">Created</span>
+                    <span className="text-[#94908a]">Created</span>
                     <p className="font-medium">
                       {new Date(template.created_at).toLocaleDateString()}
                     </p>
                   </div>
                   <div>
-                    <span className="text-slate-500">Last updated</span>
+                    <span className="text-[#94908a]">Last updated</span>
                     <p className="font-medium">
                       {new Date(template.updated_at).toLocaleDateString()}
                     </p>
@@ -439,7 +444,7 @@ export default function TemplateDetailPage() {
               {detailTab === "styles" && (
                 styles.length === 0 ? (
                   <div className="flex items-center justify-center py-4">
-                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-emerald-600 border-t-transparent" />
+                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-[#4c573e] border-t-transparent" />
                   </div>
                 ) : (
                   <>
@@ -453,8 +458,8 @@ export default function TemplateDetailPage() {
                             className={cn(
                               "text-xs font-normal",
                               isUsed
-                                ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                                : "border-slate-200 bg-slate-50 text-slate-400"
+                                ? "border-[#d8db6e] bg-[#fafd99]/10 text-[#3b432f]"
+                                : "border-[#dddacc] bg-[#fdfcf5] text-[#94908a]"
                             )}
                           >
                             {s}
@@ -463,12 +468,12 @@ export default function TemplateDetailPage() {
                       })}
                     </div>
                     {usedStylesList.length > 0 && unusedStylesList.length > 0 && visibleStyles.length > usedStylesList.length && (
-                      <div className="my-2 border-t border-slate-100" />
+                      <div className="my-2 border-t border-[#edebe0]" />
                     )}
                     {allSorted.length > 20 && (
                       <button
                         onClick={() => setShowAllStyles(!showAllStyles)}
-                        className="mt-2 text-xs text-emerald-600 hover:underline"
+                        className="mt-2 text-xs text-[#4c573e] hover:underline"
                       >
                         {showAllStyles
                           ? "Show fewer"
@@ -489,7 +494,7 @@ export default function TemplateDetailPage() {
 
       {/* Document Preview */}
       <Card className="overflow-hidden">
-        <CardHeader className="flex flex-row items-center justify-between border-b border-slate-100 bg-slate-50 py-3">
+        <CardHeader className="flex flex-row items-center justify-between border-b border-[#edebe0] bg-[#fdfcf5] py-3">
           <CardTitle className="text-base">Template Preview</CardTitle>
           <div className="flex items-center gap-3">
             {previewMode === "docx" && (
@@ -502,7 +507,7 @@ export default function TemplateDetailPage() {
                   "flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-medium transition-colors",
                   showStyleMap
                     ? "border-violet-300 bg-violet-100 text-violet-700"
-                    : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-800",
+                    : "border-[#dddacc] bg-white text-[#6b665e] hover:bg-[#fdfcf5] hover:text-[#3b432f]",
                   styleMapLoading && "opacity-70 cursor-wait"
                 )}
               >
@@ -516,13 +521,13 @@ export default function TemplateDetailPage() {
                 {styleMapLoading ? "Loading..." : "Style Map"}
               </button>
             )}
-          <div className="flex items-center gap-1 rounded-lg bg-slate-100 p-0.5">
+          <div className="flex items-center gap-1 rounded-lg bg-[#edebe0] p-0.5">
             <button
               onClick={() => setPreviewMode("docx")}
               className={`flex items-center gap-1.5 rounded-md px-3 py-1 text-xs font-medium transition-colors ${
                 previewMode === "docx"
-                  ? "bg-white text-slate-900 shadow-sm"
-                  : "text-slate-500 hover:text-slate-700"
+                  ? "bg-white text-[#3b432f] shadow-sm"
+                  : "text-[#94908a] hover:text-[#44403a]"
               }`}
             >
               <FileText className="h-3 w-3" />
@@ -532,28 +537,28 @@ export default function TemplateDetailPage() {
               onClick={() => setPreviewMode("pdf")}
               className={`flex items-center gap-1.5 rounded-md px-3 py-1 text-xs font-medium transition-colors ${
                 previewMode === "pdf"
-                  ? "bg-white text-slate-900 shadow-sm"
-                  : "text-slate-500 hover:text-slate-700"
+                  ? "bg-white text-[#3b432f] shadow-sm"
+                  : "text-[#94908a] hover:text-[#44403a]"
               }`}
             >
               <FileText className="h-3 w-3" />
               PDF
               {loadingPdf && (
-                <div className="h-2 w-2 animate-spin rounded-full border border-slate-400 border-t-transparent" />
+                <div className="h-2 w-2 animate-spin rounded-full border border-[#94908a] border-t-transparent" />
               )}
             </button>
             <button
               onClick={() => setPreviewMode("edit")}
               className={`flex items-center gap-1.5 rounded-md px-3 py-1 text-xs font-medium transition-colors ${
                 previewMode === "edit"
-                  ? "bg-white text-slate-900 shadow-sm"
-                  : "text-slate-500 hover:text-slate-700"
+                  ? "bg-white text-[#3b432f] shadow-sm"
+                  : "text-[#94908a] hover:text-[#44403a]"
               }`}
             >
               <Pencil className="h-3 w-3" />
               Edit
               {editorLoading && (
-                <div className="h-2 w-2 animate-spin rounded-full border border-slate-400 border-t-transparent" />
+                <div className="h-2 w-2 animate-spin rounded-full border border-[#94908a] border-t-transparent" />
               )}
             </button>
           </div>
@@ -564,18 +569,18 @@ export default function TemplateDetailPage() {
             <div className="flex">
               {/* Style Map side panel */}
               {showStyleMap && styleMapData && (
-                <div className="w-[300px] shrink-0 border-r border-slate-200 bg-slate-50 overflow-auto" style={{ maxHeight: "800px" }}>
-                  <div className="sticky top-0 z-10 border-b border-slate-200 bg-slate-100 px-3 py-2">
-                    <h3 className="text-xs font-semibold text-slate-600 uppercase tracking-wide">Style Map</h3>
-                    <p className="text-[10px] text-slate-400 mt-0.5">{styleMapData.length} paragraphs</p>
+                <div className="w-[300px] shrink-0 border-r border-[#dddacc] bg-[#fdfcf5] overflow-auto" style={{ maxHeight: "800px" }}>
+                  <div className="sticky top-0 z-10 border-b border-[#dddacc] bg-[#edebe0] px-3 py-2">
+                    <h3 className="text-xs font-semibold text-[#6b665e] uppercase tracking-wide">Style Map</h3>
+                    <p className="text-[10px] text-[#94908a] mt-0.5">{styleMapData.length} paragraphs</p>
                   </div>
-                  <div className="divide-y divide-slate-100">
+                  <div className="divide-y divide-[#edebe0]">
                     {styleMapData.map((entry) => {
                       const color = getStyleColor(entry.style);
                       return (
                         <div key={entry.index} className="px-3 py-2 hover:bg-white transition-colors">
                           <div className="flex items-center gap-2 mb-1">
-                            <span className="text-[10px] font-mono text-slate-400 w-5 shrink-0 text-right">
+                            <span className="text-[10px] font-mono text-[#94908a] w-5 shrink-0 text-right">
                               {entry.index}
                             </span>
                             <span
@@ -589,7 +594,7 @@ export default function TemplateDetailPage() {
                             </span>
                           </div>
                           {entry.text.trim() && (
-                            <p className="text-[11px] text-slate-500 leading-snug pl-7 truncate" title={entry.text}>
+                            <p className="text-[11px] text-[#94908a] leading-snug pl-7 truncate" title={entry.text}>
                               {entry.text}
                             </p>
                           )}
@@ -603,8 +608,8 @@ export default function TemplateDetailPage() {
               <div className="flex-1 min-w-0 overflow-auto" style={{ maxHeight: "800px" }}>
                 {loadingPreview && (
                   <div className="flex items-center justify-center py-16">
-                    <div className="h-6 w-6 animate-spin rounded-full border-2 border-emerald-600 border-t-transparent" />
-                    <span className="ml-3 text-sm text-slate-500">Rendering document...</span>
+                    <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#4c573e] border-t-transparent" />
+                    <span className="ml-3 text-sm text-[#94908a]">Rendering document...</span>
                   </div>
                 )}
                 <div
@@ -617,8 +622,8 @@ export default function TemplateDetailPage() {
           {previewMode === "pdf" && (
             loadingPdf ? (
               <div className="flex items-center justify-center py-16">
-                <div className="h-6 w-6 animate-spin rounded-full border-2 border-emerald-600 border-t-transparent" />
-                <span className="ml-3 text-sm text-slate-500">Rendering PDF via LibreOffice...</span>
+                <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#4c573e] border-t-transparent" />
+                <span className="ml-3 text-sm text-[#94908a]">Rendering PDF via LibreOffice...</span>
               </div>
             ) : pdfUrl ? (
               <iframe
@@ -627,7 +632,7 @@ export default function TemplateDetailPage() {
                 title="Template PDF Preview"
               />
             ) : (
-              <div className="flex items-center justify-center py-16 text-sm text-slate-400">
+              <div className="flex items-center justify-center py-16 text-sm text-[#94908a]">
                 Failed to load PDF preview
               </div>
             )

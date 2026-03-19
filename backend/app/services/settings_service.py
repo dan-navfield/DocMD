@@ -48,7 +48,7 @@ class SettingsService:
         return {"connected": True, "email": None}
 
     async def create_api_key(self, user_id: str, name: str) -> dict:
-        raw_key = f"docmd_{secrets.token_urlsafe(32)}"
+        raw_key = f"mddoc_{secrets.token_urlsafe(32)}"
         key_hash = hashlib.sha256(raw_key.encode()).hexdigest()
 
         result = self.supabase.table("api_keys").insert({
@@ -78,7 +78,7 @@ class SettingsService:
         return [
             {
                 **row,
-                "key_prefix": "docmd_***",
+                "key_prefix": "mddoc_***",
             }
             for row in result.data
         ]

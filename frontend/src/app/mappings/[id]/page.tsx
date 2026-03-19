@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { mappings as mappingsApi, templates as templatesApi } from "@/lib/api";
 import { MAPPING_FIELDS, bestStyleMatch, flattenRules, unflattenRules } from "@/lib/mapping-fields";
+import { toast } from "sonner";
 import type { Mapping } from "@/lib/types";
 
 export default function MappingEditorPage() {
@@ -45,7 +46,7 @@ export default function MappingEditorPage() {
               return updated;
             });
           })
-          .catch(console.error)
+          .catch(() => toast.error("Failed to load template styles"))
           .finally(() => setLoadingStyles(false));
       }
     });
@@ -57,8 +58,8 @@ export default function MappingEditorPage() {
       const newRules = unflattenRules(rules);
       await mappingsApi.update(mappingId, { rules: newRules });
       router.push("/mappings");
-    } catch (e) {
-      console.error(e);
+    } catch {
+      toast.error("Failed to save mapping");
     } finally {
       setSaving(false);
     }
@@ -67,7 +68,7 @@ export default function MappingEditorPage() {
   if (!mapping) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-6 w-6 animate-spin rounded-full border-2 border-emerald-600 border-t-transparent" />
+        <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#4c573e] border-t-transparent" />
       </div>
     );
   }
@@ -80,16 +81,16 @@ export default function MappingEditorPage() {
       <div className="flex items-center gap-4">
         <button
           onClick={() => router.push("/mappings")}
-          className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-200"
+          className="flex h-8 w-8 items-center justify-center rounded-lg text-[#94908a] hover:bg-[#edebe0]"
         >
           <ArrowLeft className="h-4 w-4" />
         </button>
         <div className="flex-1">
-          <h1 className="text-xl font-bold text-slate-900">{mapping.name}</h1>
-          <p className="text-sm text-slate-500">v{mapping.version} — Edit mapping rules</p>
+          <h1 className="text-xl font-bold text-[#3b432f]">{mapping.name}</h1>
+          <p className="text-sm text-[#94908a]">v{mapping.version} — Edit mapping rules</p>
         </div>
         <Button
-          className="bg-emerald-600 hover:bg-emerald-700"
+          className="bg-[#4c573e] hover:bg-[#3b432f]"
           onClick={handleSave}
           disabled={saving}
         >
@@ -117,7 +118,7 @@ export default function MappingEditorPage() {
 
               return (
                 <div key={field.key} className="flex items-center gap-4">
-                  <label className="w-40 shrink-0 text-sm text-slate-600">
+                  <label className="w-40 shrink-0 text-sm text-[#6b665e]">
                     {field.label}
                   </label>
                   {hasStyles ? (
@@ -127,12 +128,12 @@ export default function MappingEditorPage() {
                         onChange={(e) =>
                           setRules((prev) => ({ ...prev, [field.key]: e.target.value }))
                         }
-                        className={`h-9 w-full appearance-none rounded-md border bg-white px-3 pr-8 text-sm shadow-sm transition-colors focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 ${
+                        className={`h-9 w-full appearance-none rounded-md border bg-white px-3 pr-8 text-sm shadow-sm transition-colors focus:border-[#4c573e] focus:outline-none focus:ring-1 focus:ring-[#4c573e] ${
                           isCustomValue
                             ? "border-amber-300 text-amber-700"
                             : value
-                              ? "border-slate-200 text-slate-900"
-                              : "border-slate-200 text-slate-400"
+                              ? "border-[#dddacc] text-[#3b432f]"
+                              : "border-[#dddacc] text-[#94908a]"
                         }`}
                       >
                         <option value="">— Select style —</option>
@@ -145,7 +146,7 @@ export default function MappingEditorPage() {
                           </option>
                         ))}
                       </select>
-                      <ChevronDown className="pointer-events-none absolute right-2.5 top-2.5 h-4 w-4 text-slate-400" />
+                      <ChevronDown className="pointer-events-none absolute right-2.5 top-2.5 h-4 w-4 text-[#94908a]" />
                     </div>
                   ) : (
                     <input
@@ -156,7 +157,7 @@ export default function MappingEditorPage() {
                       }
                       placeholder={loadingStyles ? "Loading styles..." : "Word style name"}
                       disabled={loadingStyles}
-                      className="h-9 flex-1 rounded-md border border-slate-200 bg-white px-3 text-sm shadow-sm transition-colors placeholder:text-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 disabled:opacity-50"
+                      className="h-9 flex-1 rounded-md border border-[#dddacc] bg-white px-3 text-sm shadow-sm transition-colors placeholder:text-[#94908a] focus:border-[#4c573e] focus:outline-none focus:ring-1 focus:ring-[#4c573e] disabled:opacity-50"
                     />
                   )}
                 </div>

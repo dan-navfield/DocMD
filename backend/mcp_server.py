@@ -1,6 +1,6 @@
-"""DocMD MCP Server — standalone entry point for Claude Desktop / Claude Code.
+"""MDDoc MCP Server — standalone entry point for Claude Desktop / Claude Code.
 
-Exposes DocMD tools via MCP protocol, calling the REST API endpoints.
+Exposes MDDoc tools via MCP protocol, calling the REST API endpoints.
 This avoids importing the full backend; it just needs httpx.
 """
 from __future__ import annotations
@@ -14,10 +14,10 @@ from mcp.server import Server
 from mcp.server.stdio import stdio_server
 from mcp.types import Tool, TextContent
 
-API_URL = os.environ.get("DOCMD_API_URL", "http://localhost:8000")
-API_KEY = os.environ.get("DOCMD_API_KEY", "")
+API_URL = os.environ.get("MDDOC_API_URL", "http://localhost:8000")
+API_KEY = os.environ.get("MDDOC_API_KEY", "")
 
-app = Server("docmd")
+app = Server("mddoc")
 
 
 def _headers() -> dict[str, str]:
@@ -31,15 +31,15 @@ def _headers() -> dict[str, str]:
 async def list_tools() -> list[Tool]:
     return [
         Tool(
-            name="docmd_list_templates",
-            description="List all available Word templates in DocMD.",
+            name="mddoc_list_templates",
+            description="List all available Word templates in MDDoc.",
             inputSchema={
                 "type": "object",
                 "properties": {},
             },
         ),
         Tool(
-            name="docmd_list_mappings",
+            name="mddoc_list_mappings",
             description="List all available style mapping configurations. Optionally filter by template.",
             inputSchema={
                 "type": "object",
@@ -52,16 +52,16 @@ async def list_tools() -> list[Tool]:
             },
         ),
         Tool(
-            name="docmd_list_documents",
-            description="List all documents in DocMD.",
+            name="mddoc_list_documents",
+            description="List all documents in MDDoc.",
             inputSchema={
                 "type": "object",
                 "properties": {},
             },
         ),
         Tool(
-            name="docmd_submit_document",
-            description="Submit a Markdown document to DocMD. Provide a title and markdown content.",
+            name="mddoc_submit_document",
+            description="Submit a Markdown document to MDDoc. Provide a title and markdown content.",
             inputSchema={
                 "type": "object",
                 "properties": {
@@ -82,7 +82,7 @@ async def list_tools() -> list[Tool]:
             },
         ),
         Tool(
-            name="docmd_get_document",
+            name="mddoc_get_document",
             description="Get details of a specific document by ID.",
             inputSchema={
                 "type": "object",
@@ -96,7 +96,7 @@ async def list_tools() -> list[Tool]:
             },
         ),
         Tool(
-            name="docmd_convert",
+            name="mddoc_convert",
             description="Convert a document to a styled Word file using a template and mapping.",
             inputSchema={
                 "type": "object",
@@ -118,7 +118,7 @@ async def list_tools() -> list[Tool]:
             },
         ),
         Tool(
-            name="docmd_classify",
+            name="mddoc_classify",
             description="Use AI to classify a markdown document (detect doc type, suggest template/mapping).",
             inputSchema={
                 "type": "object",
@@ -163,12 +163,12 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
             if billing_error:
                 return [TextContent(type="text", text=billing_error)]
 
-            if name == "docmd_list_templates":
+            if name == "mddoc_list_templates":
                 r = await client.get(f"{API_URL}/api/templates", headers=_headers())
                 r.raise_for_status()
                 return [TextContent(type="text", text=json.dumps(r.json(), indent=2))]
 
-            elif name == "docmd_list_mappings":
+            elif name == "mddoc_list_mappings":
                 params = {}
                 if arguments.get("template_id"):
                     params["template_id"] = arguments["template_id"]
@@ -180,12 +180,12 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
                 r.raise_for_status()
                 return [TextContent(type="text", text=json.dumps(r.json(), indent=2))]
 
-            elif name == "docmd_list_documents":
+            elif name == "mddoc_list_documents":
                 r = await client.get(f"{API_URL}/api/documents", headers=_headers())
                 r.raise_for_status()
                 return [TextContent(type="text", text=json.dumps(r.json(), indent=2))]
 
-            elif name == "docmd_submit_document":
+            elif name == "mddoc_submit_document":
                 # Use multipart form upload
                 data = {
                     "title": arguments["title"],
@@ -209,7 +209,7 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
                 r.raise_for_status()
                 return [TextContent(type="text", text=json.dumps(r.json(), indent=2))]
 
-            elif name == "docmd_get_document":
+            elif name == "mddoc_get_document":
                 r = await client.get(
                     f"{API_URL}/api/documents/{arguments['document_id']}",
                     headers=_headers(),
@@ -217,7 +217,7 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
                 r.raise_for_status()
                 return [TextContent(type="text", text=json.dumps(r.json(), indent=2))]
 
-            elif name == "docmd_convert":
+            elif name == "mddoc_convert":
                 r = await client.post(
                     f"{API_URL}/api/documents/{arguments['document_id']}/convert",
                     headers=_headers(),
@@ -229,7 +229,7 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
                 r.raise_for_status()
                 return [TextContent(type="text", text=json.dumps(r.json(), indent=2))]
 
-            elif name == "docmd_classify":
+            elif name == "mddoc_classify":
                 body: dict = {
                     "markdown": arguments["markdown"],
                     "mode": "suggest",

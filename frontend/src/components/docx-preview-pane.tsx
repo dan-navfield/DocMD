@@ -73,23 +73,23 @@ export function DocxPreviewPane({
     <div className="relative flex-1 min-w-0 overflow-auto" style={{ maxHeight }}>
       {showLoading && !reconverting && (
         <div className="flex items-center justify-center py-16">
-          <div className="h-6 w-6 animate-spin rounded-full border-2 border-emerald-600 border-t-transparent" />
-          <span className="ml-3 text-sm text-slate-500">Rendering document...</span>
+          <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#4c573e] border-t-transparent" />
+          <span className="ml-3 text-sm text-[#94908a]">Rendering document...</span>
         </div>
       )}
 
       {/* Semi-transparent spinner overlay during re-conversion */}
       {reconverting && (
         <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/60 backdrop-blur-[1px]">
-          <div className="flex items-center gap-3 rounded-lg bg-white px-4 py-3 shadow-lg border border-slate-200">
-            <RefreshCw className="h-4 w-4 animate-spin text-emerald-600" />
-            <span className="text-sm font-medium text-slate-700">Re-converting...</span>
+          <div className="flex items-center gap-3 rounded-lg bg-white px-4 py-3 shadow-lg border border-[#dddacc]">
+            <RefreshCw className="h-4 w-4 animate-spin text-[#4c573e]" />
+            <span className="text-sm font-medium text-[#44403a]">Re-converting...</span>
           </div>
         </div>
       )}
 
       {!docxData && !loading && (
-        <div className="flex items-center justify-center py-16 text-sm text-slate-400">
+        <div className="flex items-center justify-center py-16 text-sm text-[#94908a]">
           No document to preview
         </div>
       )}

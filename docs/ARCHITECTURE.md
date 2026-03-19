@@ -1,8 +1,8 @@
-# DocMD Architecture
+# MDDoc Architecture
 
 > Markdown in. Word out. Perfectly styled.
 
-DocMD converts Markdown documents into professionally formatted Word documents using organisational templates, with AI-powered classification and SharePoint export.
+MDDoc converts Markdown documents into professionally formatted Word documents using organisational templates, with AI-powered classification and SharePoint export.
 
 ---
 
@@ -310,19 +310,19 @@ class LLMProvider(Protocol):
 
 ## MCP Server
 
-Exposes DocMD as 7 MCP tools for AI assistant integration:
+Exposes MDDoc as 7 MCP tools for AI assistant integration:
 
 | Tool                      | Description                                      |
 |---------------------------|--------------------------------------------------|
-| `docmd_submit_document`   | Submit markdown + auto-classify                  |
-| `docmd_convert`           | Convert with template + mapping                  |
-| `docmd_export`            | Export to SharePoint / storage                   |
-| `docmd_get_status`        | Check document status                            |
-| `docmd_list_templates`    | List available templates                         |
-| `docmd_list_mappings`     | List available mappings                          |
-| `docmd_full_pipeline`     | End-to-end: submit → classify → convert → export |
+| `mddoc_submit_document`   | Submit markdown + auto-classify                  |
+| `mddoc_convert`           | Convert with template + mapping                  |
+| `mddoc_export`            | Export to SharePoint / storage                   |
+| `mddoc_get_status`        | Check document status                            |
+| `mddoc_list_templates`    | List available templates                         |
+| `mddoc_list_mappings`     | List available mappings                          |
+| `mddoc_full_pipeline`     | End-to-end: submit → classify → convert → export |
 
-Auth: Each tool call includes a DocMD API key, resolved to `user_id` via hashed lookup.
+Auth: Each tool call includes a MDDoc API key, resolved to `user_id` via hashed lookup.
 
 Transport: stdio (launched as subprocess by Claude Desktop or Claude Code).
 
@@ -345,7 +345,7 @@ Browser                    Frontend              Backend              Supabase
 ```
 
 - **Web UI**: Supabase Auth JWT in Authorization header
-- **API / MCP**: DocMD API key → hashed lookup in `api_keys` table → `user_id`
+- **API / MCP**: MDDoc API key → hashed lookup in `api_keys` table → `user_id`
 - **Auth Guard**: `AuthProvider` component redirects to `/login` if no session
 - **App Shell**: Conditionally renders nav/sidebar (skipped on `/login`)
 

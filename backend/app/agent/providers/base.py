@@ -16,7 +16,7 @@ class LLMProvider(Protocol):
         ...
 
 
-CLASSIFY_SYSTEM_PROMPT = """You are a document classification assistant for DocMD.
+CLASSIFY_SYSTEM_PROMPT = """You are a document classification assistant for MDDoc.
 Your job is to analyze Markdown content and determine:
 1. What type of document it is (e.g., Architecture Decision Record, Requirements, Test Plan, API Specification, Runbook, Design Document, User Guide, Release Notes, Meeting Notes)
 2. A confidence score (0.0 to 1.0)
@@ -33,7 +33,7 @@ Respond in JSON format:
   "recommended_filename": "string"
 }"""
 
-ORGANIZE_SYSTEM_PROMPT = """You are a document organization assistant for DocMD.
+ORGANIZE_SYSTEM_PROMPT = """You are a document organization assistant for MDDoc.
 Given a list of document types and project context, propose a folder structure.
 
 Respond in JSON format:

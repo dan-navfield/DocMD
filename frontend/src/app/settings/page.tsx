@@ -29,6 +29,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/lib/supabase";
 import { settings as settingsApi, billing as billingApi } from "@/lib/api";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { FontLibrary } from "@/components/font-library";
 import type { SubscriptionUsage } from "@/lib/types";
@@ -50,12 +51,12 @@ const TIER_LABELS: Record<string, string> = {
 };
 
 const STATUS_COLORS: Record<string, string> = {
-  active: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  active: "bg-[#fafd99]/10 text-[#3b432f] border-[#d8db6e]",
   trialing: "bg-blue-50 text-blue-700 border-blue-200",
   past_due: "bg-amber-50 text-amber-700 border-amber-200",
   canceled: "bg-red-50 text-red-700 border-red-200",
   unpaid: "bg-red-50 text-red-700 border-red-200",
-  incomplete: "bg-slate-50 text-slate-600 border-slate-200",
+  incomplete: "bg-[#fdfcf5] text-[#6b665e] border-[#dddacc]",
 };
 
 const FEATURE_LABELS: Record<string, string> = {
@@ -127,16 +128,16 @@ export default function SettingsPage() {
         setLlmProvider(data.provider);
         setHasKey(data.has_key);
       })
-      .catch(() => {});
+      .catch(() => toast.error("Failed to load LLM settings"));
     settingsApi
       .getMicrosoft()
       .then((data) => {
         setMicrosoftConnected(data.connected);
         setMicrosoftEmail(data.email);
       })
-      .catch(() => {});
-    settingsApi.getApiKeys().then(setApiKeys).catch(() => []);
-    billingApi.getUsage().then(setBillingUsage).catch(() => {});
+      .catch(() => toast.error("Failed to load Microsoft connection status"));
+    settingsApi.getApiKeys().then(setApiKeys).catch(() => toast.error("Failed to load API keys"));
+    billingApi.getUsage().then(setBillingUsage).catch(() => toast.error("Failed to load billing usage"));
   }, []);
 
   const handleSaveProfile = async () => {
@@ -150,7 +151,7 @@ export default function SettingsPage() {
       setProfileSuccess("Profile updated successfully");
       setTimeout(() => setProfileSuccess(""), 3000);
     } catch {
-      // Fail silently
+      toast.error("Failed to update profile");
     } finally {
       setSavingProfile(false);
     }
@@ -198,8 +199,8 @@ export default function SettingsPage() {
       setLlmKey("");
       setLlmSuccess("API key saved successfully");
       setTimeout(() => setLlmSuccess(""), 3000);
-    } catch (e) {
-      console.error(e);
+    } catch {
+      toast.error("Failed to save LLM API key");
     } finally {
       setSaving(false);
     }
@@ -219,15 +220,19 @@ export default function SettingsPage() {
         ...prev,
       ]);
       setNewKeyName("");
-    } catch (e) {
-      console.error(e);
+    } catch {
+      toast.error("Failed to create API key");
     }
   };
 
   const handleDeleteApiKey = async (id: string) => {
     if (!confirm("Revoke this API key?")) return;
-    await settingsApi.deleteApiKey(id);
-    setApiKeys((prev) => prev.filter((k) => k.id !== id));
+    try {
+      await settingsApi.deleteApiKey(id);
+      setApiKeys((prev) => prev.filter((k) => k.id !== id));
+    } catch {
+      toast.error("Failed to revoke API key");
+    }
   };
 
   const handleLogout = async () => {
@@ -241,8 +246,8 @@ export default function SettingsPage() {
     try {
       const { portal_url } = await billingApi.createPortalSession();
       window.location.href = portal_url;
-    } catch (err) {
-      console.error("Failed to open billing portal:", err);
+    } catch {
+      toast.error("Failed to open billing portal");
       setBillingLoading(false);
     }
   };
@@ -252,8 +257,8 @@ export default function SettingsPage() {
     try {
       const { checkout_url } = await billingApi.createCheckoutSession(tier, "month");
       window.location.href = checkout_url;
-    } catch (err) {
-      console.error("Failed to create checkout session:", err);
+    } catch {
+      toast.error("Failed to start checkout session");
       setBillingLoading(false);
     }
   };
@@ -275,15 +280,15 @@ export default function SettingsPage() {
       <div className="w-56 shrink-0">
         <div className="sticky top-6">
           {/* User card */}
-          <div className="mb-6 flex items-center gap-3 rounded-xl bg-white border border-slate-200 p-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-sm font-semibold text-emerald-700">
+          <div className="mb-6 flex items-center gap-3 rounded-xl bg-white border border-[#dddacc] p-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#fafd99]/20 text-sm font-semibold text-[#3b432f]">
               {initials}
             </div>
             <div className="min-w-0">
-              <p className="truncate text-sm font-medium text-slate-900">
+              <p className="truncate text-sm font-medium text-[#3b432f]">
                 {fullName || "User"}
               </p>
-              <p className="truncate text-xs text-slate-500">{userEmail}</p>
+              <p className="truncate text-xs text-[#94908a]">{userEmail}</p>
             </div>
           </div>
 
@@ -296,8 +301,8 @@ export default function SettingsPage() {
                 className={cn(
                   "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
                   activeSection === item.id
-                    ? "bg-emerald-50 text-emerald-700"
-                    : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                    ? "bg-[#fafd99]/10 text-[#3b432f]"
+                    : "text-[#6b665e] hover:bg-[#fdfcf5] hover:text-[#3b432f]"
                 )}
               >
                 <item.icon className="h-4 w-4" />
@@ -330,28 +335,28 @@ export default function SettingsPage() {
         {activeSection === "profile" && (
           <div className="space-y-6">
             <div>
-              <h1 className="text-xl font-bold text-slate-900">Profile</h1>
-              <p className="mt-1 text-sm text-slate-500">
+              <h1 className="text-xl font-bold text-[#3b432f]">Profile</h1>
+              <p className="mt-1 text-sm text-[#94908a]">
                 Manage your personal information and account security
               </p>
             </div>
 
             {/* Personal Information */}
-            <div className="rounded-xl border border-slate-200 bg-white">
+            <div className="rounded-xl border border-[#dddacc] bg-white">
               <div className="border-b px-6 py-4">
-                <h2 className="text-sm font-semibold text-slate-900">
+                <h2 className="text-sm font-semibold text-[#3b432f]">
                   Personal Information
                 </h2>
               </div>
               <div className="space-y-5 p-6">
                 {/* Avatar + Name */}
                 <div className="flex items-start gap-5">
-                  <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-xl font-bold text-emerald-700">
+                  <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-[#fafd99]/20 text-xl font-bold text-[#3b432f]">
                     {initials}
                   </div>
                   <div className="flex-1 space-y-4">
                     <div>
-                      <label className="mb-1.5 block text-sm font-medium text-slate-700">
+                      <label className="mb-1.5 block text-sm font-medium text-[#44403a]">
                         Full name
                       </label>
                       <Input
@@ -362,16 +367,16 @@ export default function SettingsPage() {
                       />
                     </div>
                     <div>
-                      <label className="mb-1.5 block text-sm font-medium text-slate-700">
+                      <label className="mb-1.5 block text-sm font-medium text-[#44403a]">
                         Email address
                       </label>
-                      <div className="flex h-10 max-w-sm items-center gap-2 rounded-md border border-slate-200 bg-slate-50 px-3">
-                        <Mail className="h-4 w-4 text-slate-400" />
-                        <span className="text-sm text-slate-600">
+                      <div className="flex h-10 max-w-sm items-center gap-2 rounded-md border border-[#dddacc] bg-[#fdfcf5] px-3">
+                        <Mail className="h-4 w-4 text-[#94908a]" />
+                        <span className="text-sm text-[#6b665e]">
                           {userEmail}
                         </span>
                       </div>
-                      <p className="mt-1 text-xs text-slate-400">
+                      <p className="mt-1 text-xs text-[#94908a]">
                         Email cannot be changed
                       </p>
                     </div>
@@ -379,9 +384,9 @@ export default function SettingsPage() {
                 </div>
 
                 {profileSuccess && (
-                  <div className="flex items-center gap-2 rounded-lg bg-emerald-50 border border-emerald-200 px-3 py-2">
-                    <CheckCircle className="h-4 w-4 text-emerald-500" />
-                    <span className="text-sm text-emerald-700">
+                  <div className="flex items-center gap-2 rounded-lg bg-[#fafd99]/10 border border-[#d8db6e] px-3 py-2">
+                    <CheckCircle className="h-4 w-4 text-[#4c573e]" />
+                    <span className="text-sm text-[#3b432f]">
                       {profileSuccess}
                     </span>
                   </div>
@@ -391,7 +396,7 @@ export default function SettingsPage() {
                   <Button
                     onClick={handleSaveProfile}
                     disabled={savingProfile || fullName === originalName}
-                    className="bg-emerald-600 hover:bg-emerald-700"
+                    className="bg-[#4c573e] hover:bg-[#3b432f]"
                   >
                     {savingProfile ? (
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -405,22 +410,22 @@ export default function SettingsPage() {
             </div>
 
             {/* Change Password */}
-            <div className="rounded-xl border border-slate-200 bg-white">
+            <div className="rounded-xl border border-[#dddacc] bg-white">
               <div className="border-b px-6 py-4">
                 <div className="flex items-center gap-2">
-                  <Shield className="h-4 w-4 text-slate-500" />
-                  <h2 className="text-sm font-semibold text-slate-900">
+                  <Shield className="h-4 w-4 text-[#94908a]" />
+                  <h2 className="text-sm font-semibold text-[#3b432f]">
                     Change Password
                   </h2>
                 </div>
               </div>
               <div className="space-y-4 p-6">
                 <div>
-                  <label className="mb-1.5 block text-sm font-medium text-slate-700">
+                  <label className="mb-1.5 block text-sm font-medium text-[#44403a]">
                     New password
                   </label>
                   <div className="relative max-w-sm">
-                    <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                    <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#94908a]" />
                     <Input
                       type={showNewPassword ? "text" : "password"}
                       value={newPassword}
@@ -432,7 +437,7 @@ export default function SettingsPage() {
                     <button
                       type="button"
                       onClick={() => setShowNewPassword(!showNewPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-[#94908a] hover:text-[#6b665e]"
                     >
                       {showNewPassword ? (
                         <EyeOff className="h-4 w-4" />
@@ -443,11 +448,11 @@ export default function SettingsPage() {
                   </div>
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-sm font-medium text-slate-700">
+                  <label className="mb-1.5 block text-sm font-medium text-[#44403a]">
                     Confirm new password
                   </label>
                   <div className="relative max-w-sm">
-                    <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                    <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#94908a]" />
                     <Input
                       type={showConfirmPassword ? "text" : "password"}
                       value={confirmPassword}
@@ -461,7 +466,7 @@ export default function SettingsPage() {
                       onClick={() =>
                         setShowConfirmPassword(!showConfirmPassword)
                       }
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-[#94908a] hover:text-[#6b665e]"
                     >
                       {showConfirmPassword ? (
                         <EyeOff className="h-4 w-4" />
@@ -479,9 +484,9 @@ export default function SettingsPage() {
                   </div>
                 )}
                 {passwordSuccess && (
-                  <div className="flex items-center gap-2 rounded-lg bg-emerald-50 border border-emerald-200 px-3 py-2">
-                    <CheckCircle className="h-4 w-4 text-emerald-500" />
-                    <span className="text-sm text-emerald-700">
+                  <div className="flex items-center gap-2 rounded-lg bg-[#fafd99]/10 border border-[#d8db6e] px-3 py-2">
+                    <CheckCircle className="h-4 w-4 text-[#4c573e]" />
+                    <span className="text-sm text-[#3b432f]">
                       {passwordSuccess}
                     </span>
                   </div>
@@ -492,7 +497,7 @@ export default function SettingsPage() {
                     onClick={handleChangePassword}
                     disabled={changingPassword || !newPassword || !confirmPassword}
                     variant="outline"
-                    className="border-slate-300"
+                    className="border-[#dddacc]"
                   >
                     {changingPassword ? (
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -511,16 +516,16 @@ export default function SettingsPage() {
         {activeSection === "billing" && (
           <div className="space-y-6">
             <div>
-              <h1 className="text-xl font-bold text-slate-900">Billing</h1>
-              <p className="mt-1 text-sm text-slate-500">
+              <h1 className="text-xl font-bold text-[#3b432f]">Billing</h1>
+              <p className="mt-1 text-sm text-[#94908a]">
                 Manage your subscription, view usage, and update payment details
               </p>
             </div>
 
             {/* Current Plan */}
-            <div className="rounded-xl border border-slate-200 bg-white">
+            <div className="rounded-xl border border-[#dddacc] bg-white">
               <div className="border-b px-6 py-4">
-                <h2 className="text-sm font-semibold text-slate-900">
+                <h2 className="text-sm font-semibold text-[#3b432f]">
                   Current Plan
                 </h2>
               </div>
@@ -528,12 +533,12 @@ export default function SettingsPage() {
                 {billingUsage ? (
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                      <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-50">
-                        <CreditCard className="h-6 w-6 text-emerald-600" />
+                      <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#fafd99]/10">
+                        <CreditCard className="h-6 w-6 text-[#4c573e]" />
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <p className="text-lg font-semibold text-slate-900">
+                          <p className="text-lg font-semibold text-[#3b432f]">
                             {TIER_LABELS[billingUsage.tier] || billingUsage.tier}
                           </p>
                           <span
@@ -545,7 +550,7 @@ export default function SettingsPage() {
                             {billingUsage.status.replace("_", " ")}
                           </span>
                         </div>
-                        <p className="text-sm text-slate-500">
+                        <p className="text-sm text-[#94908a]">
                           {billingUsage.status === "trialing"
                             ? "Your free trial is active"
                             : billingUsage.status === "active"
@@ -577,7 +582,7 @@ export default function SettingsPage() {
                         <Button
                           onClick={() => handleSubscribe(billingUsage.tier)}
                           disabled={billingLoading}
-                          className="bg-emerald-600 hover:bg-emerald-700"
+                          className="bg-[#4c573e] hover:bg-[#3b432f]"
                         >
                           {billingLoading ? (
                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -590,7 +595,7 @@ export default function SettingsPage() {
                     </div>
                   </div>
                 ) : (
-                  <div className="flex items-center gap-3 text-slate-400">
+                  <div className="flex items-center gap-3 text-[#94908a]">
                     <Loader2 className="h-4 w-4 animate-spin" />
                     <span className="text-sm">Loading subscription...</span>
                   </div>
@@ -600,9 +605,9 @@ export default function SettingsPage() {
 
             {/* Usage */}
             {billingUsage && (
-              <div className="rounded-xl border border-slate-200 bg-white">
+              <div className="rounded-xl border border-[#dddacc] bg-white">
                 <div className="border-b px-6 py-4">
-                  <h2 className="text-sm font-semibold text-slate-900">
+                  <h2 className="text-sm font-semibold text-[#3b432f]">
                     Usage This Period
                   </h2>
                 </div>
@@ -610,10 +615,10 @@ export default function SettingsPage() {
                   {/* Conversions */}
                   <div>
                     <div className="mb-2 flex items-center justify-between">
-                      <span className="text-sm font-medium text-slate-700">
+                      <span className="text-sm font-medium text-[#44403a]">
                         Conversions
                       </span>
-                      <span className="text-sm text-slate-500">
+                      <span className="text-sm text-[#94908a]">
                         {billingUsage.conversions_used}
                         {billingUsage.conversions_limit
                           ? ` / ${billingUsage.conversions_limit}`
@@ -621,7 +626,7 @@ export default function SettingsPage() {
                       </span>
                     </div>
                     {billingUsage.conversions_limit && (
-                      <div className="h-2 rounded-full bg-slate-100">
+                      <div className="h-2 rounded-full bg-[#edebe0]">
                         <div
                           className={cn(
                             "h-2 rounded-full transition-all",
@@ -633,7 +638,7 @@ export default function SettingsPage() {
                                     billingUsage.conversions_limit >=
                                   0.7
                                 ? "bg-amber-500"
-                                : "bg-emerald-500"
+                                : "bg-[#4c573e]"
                           )}
                           style={{
                             width: `${Math.min(
@@ -651,10 +656,10 @@ export default function SettingsPage() {
                   {/* Templates */}
                   <div>
                     <div className="mb-2 flex items-center justify-between">
-                      <span className="text-sm font-medium text-slate-700">
+                      <span className="text-sm font-medium text-[#44403a]">
                         Templates
                       </span>
-                      <span className="text-sm text-slate-500">
+                      <span className="text-sm text-[#94908a]">
                         {billingUsage.templates_used}
                         {billingUsage.templates_limit
                           ? ` / ${billingUsage.templates_limit}`
@@ -662,7 +667,7 @@ export default function SettingsPage() {
                       </span>
                     </div>
                     {billingUsage.templates_limit && (
-                      <div className="h-2 rounded-full bg-slate-100">
+                      <div className="h-2 rounded-full bg-[#edebe0]">
                         <div
                           className={cn(
                             "h-2 rounded-full transition-all",
@@ -674,7 +679,7 @@ export default function SettingsPage() {
                                     billingUsage.templates_limit >=
                                   0.7
                                 ? "bg-amber-500"
-                                : "bg-emerald-500"
+                                : "bg-[#4c573e]"
                           )}
                           style={{
                             width: `${Math.min(
@@ -694,9 +699,9 @@ export default function SettingsPage() {
 
             {/* Features */}
             {billingUsage && (
-              <div className="rounded-xl border border-slate-200 bg-white">
+              <div className="rounded-xl border border-[#dddacc] bg-white">
                 <div className="border-b px-6 py-4">
-                  <h2 className="text-sm font-semibold text-slate-900">
+                  <h2 className="text-sm font-semibold text-[#3b432f]">
                     Plan Features
                   </h2>
                 </div>
@@ -706,11 +711,11 @@ export default function SettingsPage() {
                       key={key}
                       className="flex items-center justify-between px-6 py-3"
                     >
-                      <span className="text-sm text-slate-700">{label}</span>
+                      <span className="text-sm text-[#44403a]">{label}</span>
                       {billingUsage.features[key] ? (
-                        <Check className="h-4 w-4 text-emerald-500" />
+                        <Check className="h-4 w-4 text-[#4c573e]" />
                       ) : (
-                        <X className="h-4 w-4 text-slate-300" />
+                        <X className="h-4 w-4 text-[#94908a]" />
                       )}
                     </div>
                   ))}
@@ -720,21 +725,21 @@ export default function SettingsPage() {
 
             {/* Upgrade CTA for Solo users */}
             {billingUsage && billingUsage.tier === "solo" && (
-              <div className="rounded-xl border border-emerald-200 bg-gradient-to-r from-emerald-50 to-teal-50">
+              <div className="rounded-xl border border-[#d8db6e] bg-gradient-to-r from-[#fafd99]/10 to-[#edebe0]">
                 <div className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h3 className="font-semibold text-slate-900">
+                      <h3 className="font-semibold text-[#3b432f]">
                         Upgrade to Team
                       </h3>
-                      <p className="mt-1 text-sm text-slate-600">
+                      <p className="mt-1 text-sm text-[#6b665e]">
                         Unlimited conversions, custom templates, integrations, and more.
                       </p>
                     </div>
                     <Button
                       onClick={() => handleSubscribe("team")}
                       disabled={billingLoading}
-                      className="bg-emerald-600 hover:bg-emerald-700"
+                      className="bg-[#4c573e] hover:bg-[#3b432f]"
                     >
                       {billingLoading ? (
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -754,41 +759,41 @@ export default function SettingsPage() {
         {activeSection === "settings" && (
           <div className="space-y-6">
             <div>
-              <h1 className="text-xl font-bold text-slate-900">Settings</h1>
-              <p className="mt-1 text-sm text-slate-500">
+              <h1 className="text-xl font-bold text-[#3b432f]">Settings</h1>
+              <p className="mt-1 text-sm text-[#94908a]">
                 Configure integrations and AI agent behaviour
               </p>
             </div>
 
             {/* AI Agent Configuration */}
-            <div className="rounded-xl border border-slate-200 bg-white">
+            <div className="rounded-xl border border-[#dddacc] bg-white">
               <div className="border-b px-6 py-4">
-                <h2 className="text-sm font-semibold text-slate-900">
+                <h2 className="text-sm font-semibold text-[#3b432f]">
                   AI Agent Configuration
                 </h2>
-                <p className="mt-0.5 text-xs text-slate-500">
+                <p className="mt-0.5 text-xs text-[#94908a]">
                   Choose your LLM provider and enter your API key (BYOK)
                 </p>
               </div>
               <div className="space-y-5 p-6">
                 <div>
-                  <label className="mb-1.5 block text-sm font-medium text-slate-700">
+                  <label className="mb-1.5 block text-sm font-medium text-[#44403a]">
                     Provider
                   </label>
                   <select
                     value={llmProvider}
                     onChange={(e) => setLlmProvider(e.target.value)}
-                    className="h-10 w-full max-w-sm rounded-md border border-slate-200 bg-white px-3 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                    className="h-10 w-full max-w-sm rounded-md border border-[#dddacc] bg-white px-3 text-sm focus:border-[#4c573e] focus:outline-none focus:ring-1 focus:ring-[#4c573e]"
                   >
                     <option value="anthropic">Anthropic (Claude)</option>
                     <option value="openai">OpenAI (GPT-4o)</option>
                   </select>
                 </div>
                 <div>
-                  <label className="mb-1.5 flex items-center gap-2 text-sm font-medium text-slate-700">
+                  <label className="mb-1.5 flex items-center gap-2 text-sm font-medium text-[#44403a]">
                     API Key
                     {hasKey && (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-[#fafd99]/10 px-2 py-0.5 text-xs font-medium text-[#3b432f]">
                         <CheckCircle className="h-3 w-3" />
                         Configured
                       </span>
@@ -809,7 +814,7 @@ export default function SettingsPage() {
                     <Button
                       onClick={handleSaveLLM}
                       disabled={!llmKey || saving}
-                      className="bg-emerald-600 hover:bg-emerald-700"
+                      className="bg-[#4c573e] hover:bg-[#3b432f]"
                     >
                       {saving ? (
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -822,9 +827,9 @@ export default function SettingsPage() {
                 </div>
 
                 {llmSuccess && (
-                  <div className="flex items-center gap-2 rounded-lg bg-emerald-50 border border-emerald-200 px-3 py-2">
-                    <CheckCircle className="h-4 w-4 text-emerald-500" />
-                    <span className="text-sm text-emerald-700">
+                  <div className="flex items-center gap-2 rounded-lg bg-[#fafd99]/10 border border-[#d8db6e] px-3 py-2">
+                    <CheckCircle className="h-4 w-4 text-[#4c573e]" />
+                    <span className="text-sm text-[#3b432f]">
                       {llmSuccess}
                     </span>
                   </div>
@@ -833,12 +838,12 @@ export default function SettingsPage() {
             </div>
 
             {/* Microsoft SharePoint */}
-            <div className="rounded-xl border border-slate-200 bg-white">
+            <div className="rounded-xl border border-[#dddacc] bg-white">
               <div className="border-b px-6 py-4">
-                <h2 className="text-sm font-semibold text-slate-900">
+                <h2 className="text-sm font-semibold text-[#3b432f]">
                   Microsoft SharePoint
                 </h2>
-                <p className="mt-0.5 text-xs text-slate-500">
+                <p className="mt-0.5 text-xs text-[#94908a]">
                   Connect your Microsoft account to export documents to SharePoint
                 </p>
               </div>
@@ -849,21 +854,21 @@ export default function SettingsPage() {
                       className={cn(
                         "flex h-10 w-10 items-center justify-center rounded-lg",
                         microsoftConnected
-                          ? "bg-emerald-50"
-                          : "bg-slate-100"
+                          ? "bg-[#fafd99]/10"
+                          : "bg-[#edebe0]"
                       )}
                     >
                       {microsoftConnected ? (
-                        <CheckCircle className="h-5 w-5 text-emerald-500" />
+                        <CheckCircle className="h-5 w-5 text-[#4c573e]" />
                       ) : (
-                        <AlertCircle className="h-5 w-5 text-slate-400" />
+                        <AlertCircle className="h-5 w-5 text-[#94908a]" />
                       )}
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-slate-900">
+                      <p className="text-sm font-medium text-[#3b432f]">
                         {microsoftConnected ? "Connected" : "Not connected"}
                       </p>
-                      <p className="text-xs text-slate-500">
+                      <p className="text-xs text-[#94908a]">
                         {microsoftConnected && microsoftEmail
                           ? microsoftEmail
                           : "Sign in with your Microsoft account to get started"}
@@ -888,8 +893,8 @@ export default function SettingsPage() {
         {activeSection === "fonts" && (
           <div className="space-y-6">
             <div>
-              <h1 className="text-xl font-bold text-slate-900">Fonts</h1>
-              <p className="mt-1 text-sm text-slate-500">
+              <h1 className="text-xl font-bold text-[#3b432f]">Fonts</h1>
+              <p className="mt-1 text-sm text-[#94908a]">
                 Upload custom fonts to use in templates and document conversions
               </p>
             </div>
@@ -901,17 +906,17 @@ export default function SettingsPage() {
         {activeSection === "api-keys" && (
           <div className="space-y-6">
             <div>
-              <h1 className="text-xl font-bold text-slate-900">API Keys</h1>
-              <p className="mt-1 text-sm text-slate-500">
+              <h1 className="text-xl font-bold text-[#3b432f]">API Keys</h1>
+              <p className="mt-1 text-sm text-[#94908a]">
                 Generate and manage keys for MCP integration and automated
                 pipelines
               </p>
             </div>
 
             {/* Create new key */}
-            <div className="rounded-xl border border-slate-200 bg-white">
+            <div className="rounded-xl border border-[#dddacc] bg-white">
               <div className="border-b px-6 py-4">
-                <h2 className="text-sm font-semibold text-slate-900">
+                <h2 className="text-sm font-semibold text-[#3b432f]">
                   Create New Key
                 </h2>
               </div>
@@ -939,7 +944,7 @@ export default function SettingsPage() {
                       Copy this key now — it won&apos;t be shown again!
                     </p>
                     <div className="flex items-center gap-2">
-                      <code className="flex-1 rounded-md bg-white border px-3 py-2 text-xs font-mono text-slate-800">
+                      <code className="flex-1 rounded-md bg-white border px-3 py-2 text-xs font-mono text-[#3b432f]">
                         {createdKey}
                       </code>
                       <Button
@@ -956,19 +961,19 @@ export default function SettingsPage() {
             </div>
 
             {/* Existing keys */}
-            <div className="rounded-xl border border-slate-200 bg-white">
+            <div className="rounded-xl border border-[#dddacc] bg-white">
               <div className="border-b px-6 py-4">
-                <h2 className="text-sm font-semibold text-slate-900">
+                <h2 className="text-sm font-semibold text-[#3b432f]">
                   Active Keys
                 </h2>
               </div>
               {apiKeys.length === 0 ? (
                 <div className="px-6 py-10 text-center">
-                  <Key className="mx-auto h-8 w-8 text-slate-300" />
-                  <p className="mt-2 text-sm text-slate-500">
+                  <Key className="mx-auto h-8 w-8 text-[#94908a]" />
+                  <p className="mt-2 text-sm text-[#94908a]">
                     No API keys yet
                   </p>
-                  <p className="text-xs text-slate-400">
+                  <p className="text-xs text-[#94908a]">
                     Create one above to get started
                   </p>
                 </div>
@@ -980,10 +985,10 @@ export default function SettingsPage() {
                       className="flex items-center justify-between px-6 py-3.5"
                     >
                       <div>
-                        <p className="text-sm font-medium text-slate-900">
+                        <p className="text-sm font-medium text-[#3b432f]">
                           {key.name}
                         </p>
-                        <p className="text-xs text-slate-400 font-mono">
+                        <p className="text-xs text-[#94908a] font-mono">
                           {key.key_prefix}
                         </p>
                       </div>
@@ -991,7 +996,7 @@ export default function SettingsPage() {
                         variant="ghost"
                         size="sm"
                         onClick={() => handleDeleteApiKey(key.id)}
-                        className="text-slate-400 hover:text-red-500 hover:bg-red-50"
+                        className="text-[#94908a] hover:text-red-500 hover:bg-red-50"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>

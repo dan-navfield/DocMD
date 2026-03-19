@@ -84,11 +84,11 @@ export function OnlyofficeEditor({
 
     const events: Record<string, unknown> = {
       onAppReady: () => {
-        console.log(`[DocMD] ONLYOFFICE ${mode} ready`);
+        console.log(`[MDDoc] ONLYOFFICE ${mode} ready`);
         setEditorReady(true);
       },
       onError: (event: { data: unknown }) => {
-        console.error("[DocMD] ONLYOFFICE error:", event.data);
+        console.error("[MDDoc] ONLYOFFICE error:", event.data);
         setEditorError("Editor encountered an error");
       },
     };
@@ -96,7 +96,7 @@ export function OnlyofficeEditor({
     if (mode === "edit") {
       events.onDocumentStateChange = (event: { data: boolean }) => {
         if (!event.data) {
-          console.log("[DocMD] ONLYOFFICE document saved");
+          console.log("[MDDoc] ONLYOFFICE document saved");
           onSavedRef.current?.();
         }
       };
@@ -114,13 +114,13 @@ export function OnlyofficeEditor({
     };
 
     try {
-      console.log(`[DocMD] Creating ONLYOFFICE ${mode}`);
+      console.log(`[MDDoc] Creating ONLYOFFICE ${mode}`);
       editorRef.current = new window.DocsAPI.DocEditor(
         containerId,
         editorConfig
       );
     } catch (err) {
-      console.error("[DocMD] Failed to create ONLYOFFICE editor:", err);
+      console.error("[MDDoc] Failed to create ONLYOFFICE editor:", err);
       setEditorError("Failed to initialize the editor");
     }
 
@@ -144,7 +144,7 @@ export function OnlyofficeEditor({
         {mode === "edit" && (
           <button
             onClick={onClose}
-            className="text-sm text-emerald-600 hover:underline"
+            className="text-sm text-[#4c573e] hover:underline"
           >
             Back to preview
           </button>
@@ -156,8 +156,8 @@ export function OnlyofficeEditor({
   if (loading || !config) {
     return (
       <div className="flex items-center justify-center py-16">
-        <div className="h-6 w-6 animate-spin rounded-full border-2 border-emerald-600 border-t-transparent" />
-        <span className="ml-3 text-sm text-slate-500">
+        <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#4c573e] border-t-transparent" />
+        <span className="ml-3 text-sm text-[#94908a]">
           {mode === "view" ? "Loading preview..." : "Loading editor..."}
         </span>
       </div>
@@ -168,8 +168,8 @@ export function OnlyofficeEditor({
     <div className="relative">
       {!editorReady && (
         <div className="absolute inset-0 z-10 flex items-center justify-center bg-white">
-          <div className="h-6 w-6 animate-spin rounded-full border-2 border-emerald-600 border-t-transparent" />
-          <span className="ml-3 text-sm text-slate-500">
+          <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#4c573e] border-t-transparent" />
+          <span className="ml-3 text-sm text-[#94908a]">
             {mode === "view" ? "Loading document..." : "Connecting to editor..."}
           </span>
         </div>

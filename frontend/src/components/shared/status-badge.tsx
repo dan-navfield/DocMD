@@ -7,8 +7,8 @@ const statusConfig: Record<
 > = {
   received: {
     label: "Received",
-    className: "bg-slate-100 text-slate-700 border-slate-200",
-    dot: "bg-slate-400",
+    className: "bg-[#edebe0] text-[#44403a] border-[#dddacc]",
+    dot: "bg-[#94908a]",
   },
   converted: {
     label: "Converted",
@@ -17,8 +17,8 @@ const statusConfig: Record<
   },
   exported: {
     label: "Exported",
-    className: "bg-emerald-50 text-emerald-700 border-emerald-200",
-    dot: "bg-emerald-500",
+    className: "bg-[#fafd99]/10 text-[#3b432f] border-[#d8db6e]",
+    dot: "bg-[#4c573e]",
   },
   pending: {
     label: "Pending",
@@ -32,8 +32,8 @@ const statusConfig: Record<
   },
   completed: {
     label: "Completed",
-    className: "bg-emerald-50 text-emerald-700 border-emerald-200",
-    dot: "bg-emerald-500",
+    className: "bg-[#fafd99]/10 text-[#3b432f] border-[#d8db6e]",
+    dot: "bg-[#4c573e]",
   },
   failed: {
     label: "Failed",

@@ -11,6 +11,7 @@ import {
   templates as templatesApi,
   mappings as mappingsApi,
 } from "@/lib/api";
+import { toast } from "sonner";
 import type { Project, Template, Mapping, Destination } from "@/lib/types";
 
 export default function ProjectDetailPage() {
@@ -24,16 +25,16 @@ export default function ProjectDetailPage() {
   const [allMappings, setAllMappings] = useState<Mapping[]>([]);
 
   useEffect(() => {
-    projectsApi.get(projectId).then(setProject);
-    projectsApi.destinations.list(projectId).then(setDestinations).catch(() => []);
-    templatesApi.list().then(setTemplates).catch(() => []);
-    mappingsApi.list().then(setAllMappings).catch(() => []);
+    projectsApi.get(projectId).then(setProject).catch(() => toast.error("Failed to load project"));
+    projectsApi.destinations.list(projectId).then(setDestinations).catch(() => toast.error("Failed to load destinations"));
+    templatesApi.list().then(setTemplates).catch(() => toast.error("Failed to load templates"));
+    mappingsApi.list().then(setAllMappings).catch(() => toast.error("Failed to load mappings"));
   }, [projectId]);
 
   if (!project) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="h-6 w-6 animate-spin rounded-full border-2 border-emerald-600 border-t-transparent" />
+        <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#4c573e] border-t-transparent" />
       </div>
     );
   }
@@ -43,13 +44,13 @@ export default function ProjectDetailPage() {
       <div className="flex items-center gap-4">
         <button
           onClick={() => router.push("/projects")}
-          className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-200"
+          className="flex h-8 w-8 items-center justify-center rounded-lg text-[#94908a] hover:bg-[#edebe0]"
         >
           <ArrowLeft className="h-4 w-4" />
         </button>
         <div>
-          <h1 className="text-xl font-bold text-slate-900">{project.name}</h1>
-          <p className="text-sm text-slate-500">{project.description}</p>
+          <h1 className="text-xl font-bold text-[#3b432f]">{project.name}</h1>
+          <p className="text-sm text-[#94908a]">{project.description}</p>
         </div>
       </div>
 
@@ -74,7 +75,7 @@ export default function ProjectDetailPage() {
                   });
                   setProject(updated);
                 }}
-                className="w-full rounded-md border border-slate-200 px-3 py-2 text-sm"
+                className="w-full rounded-md border border-[#dddacc] px-3 py-2 text-sm"
               >
                 <option value="">None</option>
                 {templates.map((t) => (
@@ -97,7 +98,7 @@ export default function ProjectDetailPage() {
                   });
                   setProject(updated);
                 }}
-                className="w-full rounded-md border border-slate-200 px-3 py-2 text-sm"
+                className="w-full rounded-md border border-[#dddacc] px-3 py-2 text-sm"
               >
                 <option value="">None</option>
                 {allMappings.map((m) => (
@@ -119,7 +120,7 @@ export default function ProjectDetailPage() {
             </CardHeader>
             <CardContent>
               {destinations.length === 0 ? (
-                <p className="text-sm text-slate-500">
+                <p className="text-sm text-[#94908a]">
                   No destinations configured. Add a SharePoint connection or
                   other export target.
                 </p>
@@ -132,7 +133,7 @@ export default function ProjectDetailPage() {
                     >
                       <div>
                         <p className="text-sm font-medium">{d.name}</p>
-                        <p className="text-xs text-slate-500">{d.type}</p>
+                        <p className="text-xs text-[#94908a]">{d.type}</p>
                       </div>
                     </div>
                   ))}
@@ -152,7 +153,7 @@ export default function ProjectDetailPage() {
               </Button>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-slate-500">
+              <p className="text-sm text-[#94908a]">
                 Member management coming soon.
               </p>
             </CardContent>

@@ -25,12 +25,12 @@ services:
 
   onlyoffice:
     image: onlyoffice/documentserver:latest
-    container_name: docmd-onlyoffice
+    container_name: mddoc-onlyoffice
     ports:
       - "8080:80"
     environment:
       - JWT_ENABLED=true
-      - JWT_SECRET=docmd-onlyoffice-jwt-secret
+      - JWT_SECRET=${ONLYOFFICE_JWT_SECRET:-mddoc-onlyoffice-jwt-secret}
       - JWT_HEADER=Authorization
       - JWT_IN_BODY=true
     volumes:
@@ -45,8 +45,8 @@ services:
     ports:
       - "54322:5432"
     environment:
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: docmd
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: mddoc
     volumes:
       - supabase-db-data:/var/lib/postgresql/data
       - ./supabase/migrations:/docker-entrypoint-initdb.d

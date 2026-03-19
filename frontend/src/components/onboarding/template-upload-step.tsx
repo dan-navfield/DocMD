@@ -61,22 +61,22 @@ export function TemplateUploadStep({ onNext }: TemplateUploadStepProps) {
 
   return (
     <div className="flex flex-col items-center">
-      <h2 className="text-2xl font-bold text-slate-900">
+      <h2 className="text-2xl font-bold text-[#3b432f]">
         Upload your first template
       </h2>
-      <p className="mt-2 text-sm text-slate-500 text-center max-w-md">
+      <p className="mt-2 text-sm text-[#94908a] text-center max-w-md">
         Upload a .docx file with the styles you want your converted documents to
         use. You can always add more later.
       </p>
 
       <div className="mt-8 w-full max-w-md space-y-4">
         {uploaded ? (
-          <div className="flex flex-col items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-6">
-            <CheckCircle className="h-8 w-8 text-emerald-600" />
-            <p className="font-medium text-emerald-800">
+          <div className="flex flex-col items-center gap-3 rounded-xl border border-[#d8db6e] bg-[#fafd99]/10 p-6">
+            <CheckCircle className="h-8 w-8 text-[#4c573e]" />
+            <p className="font-medium text-[#3b432f]">
               Template uploaded successfully!
             </p>
-            <p className="text-sm text-emerald-600">{templateName}</p>
+            <p className="text-sm text-[#4c573e]">{templateName}</p>
           </div>
         ) : (
           <>
@@ -84,14 +84,14 @@ export function TemplateUploadStep({ onNext }: TemplateUploadStepProps) {
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="flex w-full flex-col items-center gap-3 rounded-xl border-2 border-dashed border-slate-300 p-8 transition hover:border-emerald-400 hover:bg-emerald-50/50"
+              className="flex w-full flex-col items-center gap-3 rounded-xl border-2 border-dashed border-[#dddacc] p-8 transition hover:border-[#6b7f5a] hover:bg-[#fafd99]/10"
             >
               {file ? (
                 <>
-                  <FileText className="h-8 w-8 text-emerald-600" />
+                  <FileText className="h-8 w-8 text-[#4c573e]" />
                   <div className="text-center">
-                    <p className="font-medium text-slate-900">{file.name}</p>
-                    <p className="text-xs text-slate-500">
+                    <p className="font-medium text-[#3b432f]">{file.name}</p>
+                    <p className="text-xs text-[#94908a]">
                       {(file.size / 1024).toFixed(0)} KB
                     </p>
                   </div>
@@ -101,7 +101,7 @@ export function TemplateUploadStep({ onNext }: TemplateUploadStepProps) {
                       setFile(null);
                       setTemplateName("");
                     }}
-                    className="text-xs text-slate-400 hover:text-slate-600"
+                    className="text-xs text-[#94908a] hover:text-[#6b665e]"
                   >
                     <X className="inline h-3 w-3 mr-0.5" />
                     Remove
@@ -109,12 +109,12 @@ export function TemplateUploadStep({ onNext }: TemplateUploadStepProps) {
                 </>
               ) : (
                 <>
-                  <Upload className="h-8 w-8 text-slate-400" />
+                  <Upload className="h-8 w-8 text-[#94908a]" />
                   <div className="text-center">
-                    <p className="font-medium text-slate-700">
+                    <p className="font-medium text-[#44403a]">
                       Click to upload a .docx template
                     </p>
-                    <p className="text-xs text-slate-400">
+                    <p className="text-xs text-[#94908a]">
                       Word documents only (.docx)
                     </p>
                   </div>
@@ -132,7 +132,7 @@ export function TemplateUploadStep({ onNext }: TemplateUploadStepProps) {
             {file && (
               <>
                 <div>
-                  <label className="mb-1.5 block text-sm font-medium text-slate-700">
+                  <label className="mb-1.5 block text-sm font-medium text-[#44403a]">
                     Template name
                   </label>
                   <Input
@@ -143,9 +143,9 @@ export function TemplateUploadStep({ onNext }: TemplateUploadStepProps) {
                   />
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-sm font-medium text-slate-700">
+                  <label className="mb-1.5 block text-sm font-medium text-[#44403a]">
                     Description{" "}
-                    <span className="text-slate-400">(optional)</span>
+                    <span className="text-[#94908a]">(optional)</span>
                   </label>
                   <Input
                     value={description}
@@ -172,7 +172,8 @@ export function TemplateUploadStep({ onNext }: TemplateUploadStepProps) {
           <Button
             onClick={handleUpload}
             disabled={uploading || !file}
-            className="h-11 bg-[#fafd99] hover:bg-[#f0f47a] text-[#3b432f] text-sm font-medium px-8"
+            className="h-11 bg-[#fafd99] hover:bg-[#f0f47a] text-sm font-medium px-8"
+            style={{ color: "#3b432f" }}
           >
             {uploading ? (
               <>
@@ -187,7 +188,8 @@ export function TemplateUploadStep({ onNext }: TemplateUploadStepProps) {
         {uploaded && (
           <Button
             onClick={() => onNext(uploadedId)}
-            className="h-11 bg-[#fafd99] hover:bg-[#f0f47a] text-[#3b432f] text-sm font-medium px-8"
+            className="h-11 bg-[#fafd99] hover:bg-[#f0f47a] text-sm font-medium px-8"
+            style={{ color: "#3b432f" }}
           >
             Continue
           </Button>
@@ -195,7 +197,7 @@ export function TemplateUploadStep({ onNext }: TemplateUploadStepProps) {
         {!uploaded && (
           <button
             onClick={() => onNext(null)}
-            className="text-sm text-slate-400 hover:text-slate-600"
+            className="text-sm text-[#94908a] hover:text-[#6b665e]"
           >
             Skip for now
           </button>

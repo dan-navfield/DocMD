@@ -15,6 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { mappings as mappingsApi, templates as templatesApi } from "@/lib/api";
+import { toast } from "sonner";
 import type { Mapping, Template } from "@/lib/types";
 
 export default function MappingsPage() {
@@ -31,7 +32,7 @@ export default function MappingsPage() {
         setAllMappings(m);
         setTemplates(t);
       })
-      .catch(() => {})
+      .catch(() => toast.error("Failed to load mappings"))
       .finally(() => setLoading(false));
   }, []);
 
@@ -46,15 +47,19 @@ export default function MappingsPage() {
       setDialogOpen(false);
       setNewName("");
       setNewTemplateId("");
-    } catch (e) {
-      console.error(e);
+    } catch {
+      toast.error("Failed to create mapping");
     }
   };
 
   const handleDelete = async (id: string) => {
     if (!confirm("Delete this mapping?")) return;
-    await mappingsApi.delete(id);
-    setAllMappings((prev) => prev.filter((m) => m.id !== id));
+    try {
+      await mappingsApi.delete(id);
+      setAllMappings((prev) => prev.filter((m) => m.id !== id));
+    } catch {
+      toast.error("Failed to delete mapping");
+    }
   };
 
   const getTemplateName = (id: string | null) => {
@@ -66,14 +71,14 @@ export default function MappingsPage() {
     <div className="mx-auto max-w-5xl space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold text-slate-900">Mappings</h1>
-          <p className="text-sm text-slate-600">
+          <h1 className="text-xl font-bold text-[#3b432f]">Mappings</h1>
+          <p className="text-sm text-[#6b665e]">
             Define how Markdown elements map to Word styles.
           </p>
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-emerald-600 hover:bg-emerald-700">
+            <Button className="bg-[#4c573e] hover:bg-[#3b432f]">
               <Plus className="mr-2 h-4 w-4" />
               New Mapping
             </Button>
@@ -96,7 +101,7 @@ export default function MappingsPage() {
                 <select
                   value={newTemplateId}
                   onChange={(e) => setNewTemplateId(e.target.value)}
-                  className="w-full rounded-md border border-slate-200 px-3 py-2 text-sm"
+                  className="w-full rounded-md border border-[#dddacc] px-3 py-2 text-sm"
                 >
                   <option value="">No specific template</option>
                   {templates.map((t) => (
@@ -105,7 +110,7 @@ export default function MappingsPage() {
                 </select>
               </div>
               <Button
-                className="w-full bg-emerald-600 hover:bg-emerald-700"
+                className="w-full bg-[#4c573e] hover:bg-[#3b432f]"
                 disabled={!newName}
                 onClick={handleCreate}
               >
@@ -118,14 +123,14 @@ export default function MappingsPage() {
 
       {loading ? (
         <div className="flex items-center justify-center py-12">
-          <div className="h-6 w-6 animate-spin rounded-full border-2 border-emerald-600 border-t-transparent" />
+          <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#4c573e] border-t-transparent" />
         </div>
       ) : allMappings.length === 0 ? (
         <Card>
           <CardContent className="flex flex-col items-center py-12 text-center">
-            <GitBranch className="mb-3 h-12 w-12 text-slate-300" />
-            <h3 className="text-base font-medium text-slate-700">No mappings yet</h3>
-            <p className="mt-1 text-sm text-slate-500">
+            <GitBranch className="mb-3 h-12 w-12 text-[#94908a]" />
+            <h3 className="text-base font-medium text-[#44403a]">No mappings yet</h3>
+            <p className="mt-1 text-sm text-[#94908a]">
               Create a mapping to define how Markdown converts to Word.
             </p>
           </CardContent>
@@ -143,7 +148,7 @@ export default function MappingsPage() {
                     variant="ghost"
                     size="sm"
                     onClick={() => handleDelete(mapping.id)}
-                    className="h-8 w-8 p-0 text-slate-400 hover:text-red-500"
+                    className="h-8 w-8 p-0 text-[#94908a] hover:text-red-500"
                   >
                     <Trash2 className="h-3.5 w-3.5" />
                   </Button>
@@ -153,7 +158,7 @@ export default function MappingsPage() {
               <CardContent>
                 <div className="flex items-center gap-2 mb-3">
                   {mapping.is_default && (
-                    <Badge className="bg-emerald-100 text-emerald-700 text-xs">
+                    <Badge className="bg-[#fafd99]/20 text-[#3b432f] text-xs">
                       Default
                     </Badge>
                   )}
@@ -163,11 +168,11 @@ export default function MappingsPage() {
                     </Badge>
                   )}
                 </div>
-                <div className="flex items-center justify-between text-xs text-slate-400">
+                <div className="flex items-center justify-between text-xs text-[#94908a]">
                   <span>v{mapping.version}</span>
                   <Link
                     href={`/mappings/${mapping.id}`}
-                    className="text-emerald-600 hover:text-emerald-700"
+                    className="text-[#4c573e] hover:text-[#3b432f]"
                   >
                     Edit rules
                   </Link>

@@ -124,8 +124,8 @@ export default function SignupPage() {
 
     // Store plan + interval so login page can create checkout session
     if (selectedTier) {
-      sessionStorage.setItem("docmd_tier", selectedTier);
-      sessionStorage.setItem("docmd_interval", interval);
+      sessionStorage.setItem("mddoc_tier", selectedTier);
+      sessionStorage.setItem("mddoc_interval", interval);
     }
 
     setStep(3);
@@ -142,13 +142,13 @@ export default function SignupPage() {
   return (
     <div className="flex min-h-screen">
       {/* Left panel — branding */}
-      <div className="hidden lg:flex lg:w-[480px] xl:w-[560px] flex-col justify-between bg-emerald-700 p-10 text-white">
+      <div className="hidden lg:flex lg:w-[480px] xl:w-[560px] flex-col justify-between bg-[#3b432f] p-10 text-white">
         <div>
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 backdrop-blur font-bold text-lg">
               MD
             </div>
-            <span className="text-xl font-semibold">DocMD</span>
+            <span className="text-xl font-semibold">MDDoc</span>
           </div>
         </div>
 
@@ -159,9 +159,9 @@ export default function SignupPage() {
               <br />
               Word out.
               <br />
-              <span className="text-emerald-200">Perfectly styled.</span>
+              <span className="text-[#fafd99]">Perfectly styled.</span>
             </h1>
-            <p className="mt-4 text-lg text-emerald-100/80 leading-relaxed">
+            <p className="mt-4 text-lg text-white/70 leading-relaxed">
               Turn Markdown into professionally formatted Word documents
               that match your organisation&apos;s templates — every time.
             </p>
@@ -187,18 +187,18 @@ export default function SignupPage() {
             ].map((feature) => (
               <div key={feature.title} className="flex gap-3">
                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/10">
-                  <feature.icon className="h-4 w-4 text-emerald-200" />
+                  <feature.icon className="h-4 w-4 text-[#fafd99]" />
                 </div>
                 <div>
                   <p className="font-medium text-sm">{feature.title}</p>
-                  <p className="text-sm text-emerald-100/60">{feature.desc}</p>
+                  <p className="text-sm text-white/50">{feature.desc}</p>
                 </div>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="flex items-center gap-2 text-sm text-emerald-200/50">
+        <div className="flex items-center gap-2 text-sm text-[#fafd99]/50">
           <FileText className="h-4 w-4" />
           <span>Trusted by teams who care about document quality</span>
         </div>
@@ -209,20 +209,20 @@ export default function SignupPage() {
         <div className="w-full max-w-[520px]">
           {/* Mobile logo */}
           <div className="mb-8 lg:hidden flex items-center justify-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-600 font-bold text-lg text-white">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#4c573e] font-bold text-lg text-white">
               MD
             </div>
-            <span className="text-xl font-semibold text-slate-900">DocMD</span>
+            <span className="text-xl font-semibold text-[#3b432f]">MDDoc</span>
           </div>
 
           {/* Step 1: Plan Selection */}
           {step === 1 && (
             <div>
               <div className="mb-6">
-                <h2 className="text-2xl font-bold text-slate-900">
+                <h2 className="text-2xl font-bold text-[#3b432f]">
                   Choose your plan
                 </h2>
-                <p className="mt-1.5 text-sm text-slate-500">
+                <p className="mt-1.5 text-sm text-[#94908a]">
                   Pick the plan that fits your needs
                 </p>
               </div>
@@ -233,8 +233,8 @@ export default function SignupPage() {
                   onClick={() => setInterval("monthly")}
                   className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
                     interval === "monthly"
-                      ? "bg-emerald-100 text-emerald-800"
-                      : "text-slate-500 hover:text-slate-700"
+                      ? "bg-[#fafd99]/20 text-[#3b432f]"
+                      : "text-[#94908a] hover:text-[#44403a]"
                   }`}
                 >
                   Monthly
@@ -243,12 +243,12 @@ export default function SignupPage() {
                   onClick={() => setInterval("annual")}
                   className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
                     interval === "annual"
-                      ? "bg-emerald-100 text-emerald-800"
-                      : "text-slate-500 hover:text-slate-700"
+                      ? "bg-[#fafd99]/20 text-[#3b432f]"
+                      : "text-[#94908a] hover:text-[#44403a]"
                   }`}
                 >
                   Annual
-                  <span className="ml-1.5 text-xs text-emerald-600">
+                  <span className="ml-1.5 text-xs text-[#6b7f5a]">
                     Save 20%
                   </span>
                 </button>
@@ -270,24 +270,24 @@ export default function SignupPage() {
                       onClick={() => setSelectedTier(tier)}
                       className={`relative rounded-xl border-2 p-5 text-left transition ${
                         isSelected
-                          ? "border-emerald-500 bg-emerald-50/50"
-                          : "border-slate-200 hover:border-slate-300"
+                          ? "border-[#4c573e] bg-[#fafd99]/10"
+                          : "border-[#dddacc] hover:border-[#94908a]"
                       }`}
                     >
                       {plan.badge && (
-                        <span className="absolute -top-2.5 right-3 rounded-full bg-emerald-600 px-2.5 py-0.5 text-[10px] font-semibold text-white">
+                        <span className="absolute -top-2.5 right-3 rounded-full bg-[#4c573e] px-2.5 py-0.5 text-[10px] font-semibold text-white">
                           {plan.badge}
                         </span>
                       )}
                       <div className="mb-3">
-                        <h3 className="text-lg font-semibold text-slate-900">
+                        <h3 className="text-lg font-semibold text-[#3b432f]">
                           {plan.name}
                         </h3>
                         <div className="mt-1 flex items-baseline gap-1">
-                          <span className="text-3xl font-bold text-slate-900">
+                          <span className="text-3xl font-bold text-[#3b432f]">
                             ${tierPrice}
                           </span>
-                          <span className="text-sm text-slate-500">/mo</span>
+                          <span className="text-sm text-[#94908a]">/mo</span>
                         </div>
                         {/* price interval clarification */}
                       </div>
@@ -298,15 +298,15 @@ export default function SignupPage() {
                             className="flex items-center gap-2 text-sm"
                           >
                             {f.included ? (
-                              <Check className="h-3.5 w-3.5 text-emerald-600" />
+                              <Check className="h-3.5 w-3.5 text-[#6b7f5a]" />
                             ) : (
-                              <X className="h-3.5 w-3.5 text-slate-300" />
+                              <X className="h-3.5 w-3.5 text-[#94908a]" />
                             )}
                             <span
                               className={
                                 f.included
-                                  ? "text-slate-700"
-                                  : "text-slate-400"
+                                  ? "text-[#44403a]"
+                                  : "text-[#94908a]"
                               }
                             >
                               {f.label}
@@ -324,18 +324,19 @@ export default function SignupPage() {
                   if (selectedTier) setStep(2);
                 }}
                 disabled={!selectedTier}
-                className="mt-6 h-11 w-full bg-[#fafd99] hover:bg-[#f0f47a] text-[#3b432f] text-sm font-medium"
+                className="mt-6 h-11 w-full bg-[#fafd99] hover:bg-[#f0f47a] text-sm font-medium"
+                style={{ color: "#3b432f" }}
               >
                 Continue
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
 
               <div className="mt-4 text-center">
-                <p className="text-sm text-slate-500">
+                <p className="text-sm text-[#94908a]">
                   Already have an account?{" "}
                   <Link
                     href="/login"
-                    className="font-medium text-emerald-600 hover:text-emerald-700"
+                    className="font-medium text-[#6b7f5a] hover:text-[#3b432f]"
                   >
                     Sign in
                   </Link>
@@ -350,13 +351,13 @@ export default function SignupPage() {
               {isEnterprise ? (
                 /* Enterprise: Contact Sales */
                 <div className="text-center">
-                  <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-100">
-                    <Crown className="h-7 w-7 text-emerald-600" />
+                  <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-[#fafd99]/20">
+                    <Crown className="h-7 w-7 text-[#6b7f5a]" />
                   </div>
-                  <h2 className="text-2xl font-bold text-slate-900">
+                  <h2 className="text-2xl font-bold text-[#3b432f]">
                     Enterprise Plan
                   </h2>
-                  <p className="mt-2 text-sm text-slate-500 max-w-sm mx-auto">
+                  <p className="mt-2 text-sm text-[#94908a] max-w-sm mx-auto">
                     For organisations needing custom limits, SSO, dedicated
                     support, and SLAs. Get in touch and we&apos;ll set up a plan
                     tailored to your needs.
@@ -374,7 +375,7 @@ export default function SignupPage() {
                         setIsEnterprise(false);
                         setStep(1);
                       }}
-                      className="text-sm text-emerald-600 hover:text-emerald-700"
+                      className="text-sm text-[#6b7f5a] hover:text-[#3b432f]"
                     >
                       <ArrowLeft className="mr-1 inline h-3.5 w-3.5" />
                       Back to plans
@@ -386,26 +387,26 @@ export default function SignupPage() {
                 <div>
                   <button
                     onClick={() => setStep(1)}
-                    className="mb-4 flex items-center gap-1 text-sm text-slate-500 hover:text-slate-700"
+                    className="mb-4 flex items-center gap-1 text-sm text-[#94908a] hover:text-[#44403a]"
                   >
                     <ArrowLeft className="h-3.5 w-3.5" />
                     Back
                   </button>
 
                   <div className="mb-6">
-                    <h2 className="text-2xl font-bold text-slate-900">
+                    <h2 className="text-2xl font-bold text-[#3b432f]">
                       Create your account
                     </h2>
-                    <p className="mt-1.5 text-sm text-slate-500">
-                      Get started with DocMD in seconds
+                    <p className="mt-1.5 text-sm text-[#94908a]">
+                      Get started with MDDoc in seconds
                     </p>
                   </div>
 
                   {/* Selected plan badge */}
                   {selectedPlan && (
-                    <div className="mb-6 inline-flex items-center gap-2 rounded-lg bg-emerald-50 border border-emerald-200 px-3 py-1.5">
-                      <div className="h-2 w-2 rounded-full bg-emerald-500" />
-                      <span className="text-sm font-medium text-emerald-800">
+                    <div className="mb-6 inline-flex items-center gap-2 rounded-lg bg-[#fafd99]/10 border border-[#d8db6e] px-3 py-1.5">
+                      <div className="h-2 w-2 rounded-full bg-[#fafd99]/100" />
+                      <span className="text-sm font-medium text-[#3b432f]">
                         {selectedPlan.name} plan
                       </span>
                     </div>
@@ -420,11 +421,11 @@ export default function SignupPage() {
 
                   <form onSubmit={handleCreateAccount} className="space-y-4">
                     <div>
-                      <label className="mb-1.5 block text-sm font-medium text-slate-700">
+                      <label className="mb-1.5 block text-sm font-medium text-[#44403a]">
                         Full name
                       </label>
                       <div className="relative">
-                        <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                        <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#94908a]" />
                         <Input
                           type="text"
                           placeholder="Jane Smith"
@@ -438,11 +439,11 @@ export default function SignupPage() {
                     </div>
 
                     <div>
-                      <label className="mb-1.5 block text-sm font-medium text-slate-700">
+                      <label className="mb-1.5 block text-sm font-medium text-[#44403a]">
                         Email
                       </label>
                       <div className="relative">
-                        <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                        <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#94908a]" />
                         <Input
                           type="email"
                           placeholder="you@company.com"
@@ -456,11 +457,11 @@ export default function SignupPage() {
                     </div>
 
                     <div>
-                      <label className="mb-1.5 block text-sm font-medium text-slate-700">
+                      <label className="mb-1.5 block text-sm font-medium text-[#44403a]">
                         Password
                       </label>
                       <div className="relative">
-                        <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                        <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#94908a]" />
                         <Input
                           type="password"
                           placeholder="Min 6 characters"
@@ -477,7 +478,8 @@ export default function SignupPage() {
                     <Button
                       type="submit"
                       disabled={loading || !name || !email || !password}
-                      className="h-11 w-full bg-[#fafd99] hover:bg-[#f0f47a] text-[#3b432f] text-sm font-medium"
+                      className="h-11 w-full bg-[#fafd99] hover:bg-[#f0f47a] text-sm font-medium"
+                      style={{ color: "#3b432f" }}
                     >
                       {loading ? (
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -489,11 +491,11 @@ export default function SignupPage() {
                   </form>
 
                   <div className="mt-6 text-center">
-                    <p className="text-sm text-slate-500">
+                    <p className="text-sm text-[#94908a]">
                       Already have an account?{" "}
                       <Link
                         href="/login"
-                        className="font-medium text-emerald-600 hover:text-emerald-700"
+                        className="font-medium text-[#6b7f5a] hover:text-[#3b432f]"
                       >
                         Sign in
                       </Link>
@@ -501,8 +503,8 @@ export default function SignupPage() {
                   </div>
 
                   <div className="mt-8 border-t pt-6">
-                    <p className="text-center text-xs text-slate-400">
-                      By continuing, you agree to DocMD&apos;s Terms of Service
+                    <p className="text-center text-xs text-[#94908a]">
+                      By continuing, you agree to MDDoc&apos;s Terms of Service
                       and Privacy Policy.
                     </p>
                   </div>
@@ -514,17 +516,17 @@ export default function SignupPage() {
           {/* Step 3: Email Confirmation */}
           {step === 3 && (
             <div className="text-center">
-              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-100">
-                <Mail className="h-7 w-7 text-emerald-600" />
+              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-[#fafd99]/20">
+                <Mail className="h-7 w-7 text-[#6b7f5a]" />
               </div>
-              <h2 className="text-2xl font-bold text-slate-900">
+              <h2 className="text-2xl font-bold text-[#3b432f]">
                 Check your email
               </h2>
-              <p className="mt-2 text-sm text-slate-500">
+              <p className="mt-2 text-sm text-[#94908a]">
                 We sent a confirmation link to
               </p>
-              <p className="mt-1 font-medium text-slate-900">{email}</p>
-              <p className="mt-4 text-sm text-slate-500 max-w-sm mx-auto">
+              <p className="mt-1 font-medium text-[#3b432f]">{email}</p>
+              <p className="mt-4 text-sm text-[#94908a] max-w-sm mx-auto">
                 Click the link in your email to confirm your account, then come
                 back and sign in.
               </p>

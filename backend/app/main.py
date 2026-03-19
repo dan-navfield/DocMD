@@ -41,7 +41,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[app_settings.frontend_url, "http://localhost:3001", app_settings.onlyoffice_url],
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 
@@ -132,4 +132,4 @@ async def startup_sync_fonts():
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "service": "docmd"}
+    return {"status": "ok", "service": "mddoc"}

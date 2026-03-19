@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import logging
 from typing import Optional
 
 from fastapi import Depends, Header, HTTPException, status
@@ -8,6 +9,8 @@ from supabase import Client
 
 from app.config import Settings, get_settings
 from app.lib.supabase import create_client
+
+logger = logging.getLogger(__name__)
 
 
 def get_supabase_client(settings: Settings = Depends(get_settings)) -> Client:
@@ -47,7 +50,7 @@ async def get_current_user(
                 "auth_type": "jwt",
             }
     except Exception:
-        pass
+        pass  # Not a valid JWT — try API key next
 
     # Try API key
     key_hash = hashlib.sha256(token.encode()).hexdigest()
@@ -71,7 +74,7 @@ async def get_current_user(
                 "auth_type": "api_key",
             }
     except Exception:
-        pass
+        pass  # Not a valid API key
 
     raise HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,

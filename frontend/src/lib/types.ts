@@ -5,7 +5,7 @@ export type DestinationType = "sharepoint" | "local" | "supabase";
 export type ProjectRole = "owner" | "editor" | "viewer";
 export type LLMProvider = "anthropic" | "openai";
 
-export interface DocMDDocument {
+export interface MDDocDocument {
   id: string;
   project_id: string | null;
   title: string;
