@@ -234,7 +234,7 @@ export default function DocumentDetailPage() {
         setPhase("post_convert");
       }
     } catch (e) {
-      toast.error("Conversion failed");
+      toast.error(e instanceof Error ? e.message : "Conversion failed");
       setPhase("pre_convert");
     } finally {
       setConverting(false);
