@@ -312,7 +312,7 @@ class MarkdownToWordConverter:
 
             # Build a python-docx Paragraph wrapper for this element
             from docx.text.paragraph import Paragraph
-            para = Paragraph(elem, doc.element.body)
+            para = Paragraph(elem, doc.part)
 
             # Skip the title paragraph
             if doc_title_style and para.style and para.style.name == doc_title_style:
