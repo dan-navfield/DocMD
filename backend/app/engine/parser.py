@@ -87,6 +87,12 @@ def _normalize_list_item(item: dict) -> dict:
     for child in item.get("children", []):
         if child.get("type") == "list":
             nested_lists.append(_normalize_node(child))
+        elif child.get("type") == "block_text":
+            # mistune uses block_text for tight list items; treat as paragraph
+            children.append({
+                "type": "paragraph",
+                "children": _extract_inline(child.get("children", [])),
+            })
         else:
             normalized = _normalize_node(child)
             if normalized:
@@ -103,7 +109,18 @@ def _normalize_table(node: dict) -> dict:
     """Normalize a table node."""
     rows = []
     for child in node.get("children", []):
-        if child.get("type") in ("table_head", "table_body"):
+        if child.get("type") == "table_head":
+            # table_head children are cells directly (one header row)
+            cells = []
+            for cell in child.get("children", []):
+                cell_text = _extract_text(cell.get("children", []))
+                cells.append(cell_text)
+            rows.append({
+                "type": "table_row",
+                "cells": cells,
+                "is_header": True,
+            })
+        elif child.get("type") == "table_body":
             for row in child.get("children", []):
                 cells = []
                 for cell in row.get("children", []):
@@ -112,7 +129,7 @@ def _normalize_table(node: dict) -> dict:
                 rows.append({
                     "type": "table_row",
                     "cells": cells,
-                    "is_header": child.get("type") == "table_head",
+                    "is_header": False,
                 })
     return {
         "type": "table",
@@ -152,10 +169,14 @@ def _extract_inline(children: list) -> list[dict]:
             })
 
         elif child_type == "image":
+            # mistune stores alt text as a text child, not in attrs
+            alt_text = child.get("attrs", {}).get("alt", "")
+            if not alt_text:
+                alt_text = _extract_text(child.get("children", []))
             result.append({
                 "type": "image",
                 "url": child.get("attrs", {}).get("url", child.get("src", "")),
-                "alt": child.get("attrs", {}).get("alt", child.get("alt", "")),
+                "alt": alt_text,
             })
 
         elif child_type == "softbreak":
