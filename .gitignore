@@ -40,3 +40,11 @@ supabase/.temp/
 .do/
 .vercel
 .env*.local
+
+# Local SSL certs
+certs/
+
+# Test artifacts
+backend/.coverage
+frontend/test-results/
+frontend/playwright-report/

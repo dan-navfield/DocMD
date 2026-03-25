@@ -8,9 +8,11 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: "html",
   use: {
-    baseURL: process.env.E2E_BASE_URL || "http://localhost:3000",
+    baseURL: process.env.E2E_BASE_URL || "https://mddoc.dev:3000",
     trace: "on-first-retry",
     screenshot: "only-on-failure",
+    // Trust the local mkcert CA
+    ignoreHTTPSErrors: true,
   },
   projects: [
     {

@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:ssl": "next dev --experimental-https --experimental-https-key ../certs/mddoc.dev-key.pem --experimental-https-cert ../certs/mddoc.dev.pem --hostname mddoc.dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",

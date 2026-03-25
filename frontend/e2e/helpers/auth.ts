@@ -1,4 +1,4 @@
-import { Page } from "@playwright/test";
+import { Page, expect } from "@playwright/test";
 
 /**
  * Log in via the Supabase email/password form.
@@ -23,4 +23,12 @@ export async function login(page: Page) {
   await page.waitForURL((url) => !url.pathname.includes("/login"), {
     timeout: 15000,
   });
+}
+
+/**
+ * Assert the user is on an authenticated page (not login/signup).
+ */
+export async function assertAuthenticated(page: Page) {
+  await expect(page).not.toHaveURL(/\/login/);
+  await expect(page).not.toHaveURL(/\/signup/);
 }
