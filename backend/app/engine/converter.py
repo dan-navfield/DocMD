@@ -1,12 +1,16 @@
 """Core conversion engine: Markdown + Template + Mapping → Word document."""
 from __future__ import annotations
 
+import base64
 import io
 import logging
 from typing import Any
 
+import httpx
+
 from docx import Document
 from docx.shared import Pt, Inches
+from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_BREAK
 
@@ -65,6 +69,10 @@ class MarkdownToWordConverter:
 
         # Clear/replace cover page metadata fields (subtitle, organization, etc.)
         self._update_cover_metadata(doc, mapping_rules)
+
+        # Insert TOC if enabled in mapping rules
+        if mapping_rules.get("toc"):
+            self._insert_toc(doc)
 
         # Stats tracking
         stats = {
@@ -334,6 +342,58 @@ class MarkdownToWordConverter:
                 doc_title_style,
             )
 
+    def _insert_toc(self, doc: Document, levels: str = "1-3"):
+        """Insert a Table of Contents field code and set updateFields."""
+        from docx.enum.text import WD_BREAK
+
+        para = doc.add_paragraph()
+        self._try_set_style(doc, para, "TOC Heading")
+
+        # Add "Contents" title run
+        title_run = para.add_run("Contents")
+        title_run.bold = True
+
+        # TOC field paragraph
+        toc_para = doc.add_paragraph()
+        run = toc_para.add_run()
+        r_elem = run._r
+
+        # Begin field
+        fld_begin = OxmlElement("w:fldChar")
+        fld_begin.set(qn("w:fldCharType"), "begin")
+        r_elem.append(fld_begin)
+
+        # Field instruction
+        instr = OxmlElement("w:instrText")
+        instr.set(qn("xml:space"), "preserve")
+        instr.text = f' TOC \\o "{levels}" \\h \\z \\u '
+        r_elem.append(instr)
+
+        # Separate
+        fld_sep = OxmlElement("w:fldChar")
+        fld_sep.set(qn("w:fldCharType"), "separate")
+        r_elem.append(fld_sep)
+
+        # Placeholder text
+        placeholder = OxmlElement("w:t")
+        placeholder.text = "Update this table of contents (right-click > Update Field)"
+        r_elem.append(placeholder)
+
+        # End field
+        fld_end = OxmlElement("w:fldChar")
+        fld_end.set(qn("w:fldCharType"), "end")
+        r_elem.append(fld_end)
+
+        # Add page break after TOC
+        toc_break = doc.add_paragraph()
+        toc_break.add_run().add_break(WD_BREAK.PAGE)
+
+        # Set updateFields in document settings so Word updates TOC on open
+        settings_elm = doc.settings.element
+        update_fields = OxmlElement("w:updateFields")
+        update_fields.set(qn("w:val"), "true")
+        settings_elm.append(update_fields)
+
     def _extract_plain_text(self, children: list[dict]) -> str:
         """Extract plain text from inline content nodes."""
         parts = []
@@ -395,14 +455,14 @@ class MarkdownToWordConverter:
 
         para = doc.add_paragraph()
         self._try_set_style(doc, para, style_name)
-        self._add_inline_content(para, node.get("children", []))
+        self._add_inline_content(para, node.get("children", []), stats)
         stats["headings"] += 1
 
     def _add_paragraph(self, doc: Document, node: dict, rules: dict, stats: dict):
         style_name = rules.get("paragraph", "Normal")
         para = doc.add_paragraph()
         self._try_set_style(doc, para, style_name)
-        self._add_inline_content(para, node.get("children", []))
+        self._add_inline_content(para, node.get("children", []), stats)
         stats["paragraphs"] += 1
 
     def _add_list(self, doc: Document, node: dict, rules: dict, stats: dict, level: int = 0):
@@ -423,7 +483,7 @@ class MarkdownToWordConverter:
                 if child.get("type") == "paragraph":
                     para = doc.add_paragraph()
                     self._try_set_style(doc, para, style_name)
-                    self._add_inline_content(para, child.get("children", []))
+                    self._add_inline_content(para, child.get("children", []), stats)
 
             # Handle nested lists
             for nested_list in item.get("nested_lists", []):
@@ -449,7 +509,7 @@ class MarkdownToWordConverter:
             if child.get("type") == "paragraph":
                 para = doc.add_paragraph()
                 self._try_set_style(doc, para, style_name)
-                self._add_inline_content(para, child.get("children", []))
+                self._add_inline_content(para, child.get("children", []), stats)
 
     def _add_table(self, doc: Document, node: dict, rules: dict, stats: dict):
         rows = node.get("rows", [])
@@ -470,15 +530,22 @@ class MarkdownToWordConverter:
             pass
 
         for i, row in enumerate(rows):
-            for j, cell_text in enumerate(row.get("cells", [])):
+            for j, cell_content in enumerate(row.get("cells", [])):
                 if j < num_cols:
                     cell = table.rows[i].cells[j]
-                    cell.text = cell_text
+                    # Clear default empty paragraph text
+                    cell.text = ""
+                    para = cell.paragraphs[0]
+                    if isinstance(cell_content, list):
+                        # Rich inline content
+                        self._add_inline_content(para, cell_content, stats)
+                    else:
+                        # Plain text fallback
+                        para.add_run(str(cell_content))
                     # Bold header rows
                     if row.get("is_header"):
-                        for paragraph in cell.paragraphs:
-                            for run in paragraph.runs:
-                                run.bold = True
+                        for run in para.runs:
+                            run.bold = True
 
         stats["tables"] += 1
 
@@ -487,7 +554,67 @@ class MarkdownToWordConverter:
         run = para.add_run()
         run.add_break(WD_BREAK.PAGE)
 
-    def _add_inline_content(self, para, children: list[dict]):
+    def _add_hyperlink(self, para, url: str, text: str):
+        """Add a clickable hyperlink to a paragraph using XML manipulation."""
+        from docx.opc.constants import RELATIONSHIP_TYPE as RT
+
+        part = para.part
+        r_id = part.relate_to(url, RT.HYPERLINK, is_external=True)
+
+        hyperlink = OxmlElement("w:hyperlink")
+        hyperlink.set(qn("r:id"), r_id)
+        hyperlink.set(qn("w:history"), "1")
+
+        new_run = OxmlElement("w:r")
+        rPr = OxmlElement("w:rPr")
+
+        # Apply Hyperlink character style if available
+        rStyle = OxmlElement("w:rStyle")
+        rStyle.set(qn("w:val"), "Hyperlink")
+        rPr.append(rStyle)
+
+        # Blue color + underline
+        color = OxmlElement("w:color")
+        color.set(qn("w:val"), "0563C1")
+        color.set(qn("w:themeColor"), "hyperlink")
+        rPr.append(color)
+
+        underline = OxmlElement("w:u")
+        underline.set(qn("w:val"), "single")
+        rPr.append(underline)
+
+        new_run.append(rPr)
+
+        run_text = OxmlElement("w:t")
+        run_text.set(qn("xml:space"), "preserve")
+        run_text.text = text
+        new_run.append(run_text)
+
+        hyperlink.append(new_run)
+        para._p.append(hyperlink)
+
+    def _add_image_to_paragraph(self, para, image_bytes: bytes, alt: str, width_inches: float = 5.0):
+        """Insert image bytes into a paragraph as an inline picture."""
+        image_stream = io.BytesIO(image_bytes)
+        run = para.add_run()
+        run.add_picture(image_stream, width=Inches(width_inches))
+
+    def _download_image(self, url: str) -> bytes | None:
+        """Download an image from a URL. Returns bytes or None on failure."""
+        try:
+            with httpx.Client(timeout=10, follow_redirects=True) as client:
+                resp = client.get(url)
+                resp.raise_for_status()
+                content_type = resp.headers.get("content-type", "")
+                if not content_type.startswith("image/"):
+                    logger.warning("URL %s returned non-image content-type: %s", url, content_type)
+                    return None
+                return resp.content
+        except Exception as e:
+            logger.warning("Failed to download image %s: %s", url, e)
+            return None
+
+    def _add_inline_content(self, para, children: list[dict], stats: dict | None = None):
         """Add inline content (text, bold, italic, code, links) to a paragraph."""
         for child in children:
             child_type = child.get("type", "")
@@ -512,18 +639,28 @@ class MarkdownToWordConverter:
 
             elif child_type == "link":
                 url = child.get("url", "")
-                link_text = "".join(
-                    sub.get("text", "") for sub in child.get("children", [])
-                )
-                run = para.add_run(link_text)
-                run.underline = True
-                # Add hyperlink (simplified - full hyperlink requires XML manipulation)
-                run.font.color.rgb = None  # Will use theme color
+                link_text = self._extract_plain_text(child.get("children", []))
+                self._add_hyperlink(para, url, link_text)
 
             elif child_type == "image":
-                # Images would need to be downloaded and inserted
+                url = child.get("url", "")
                 alt = child.get("alt", "Image")
-                para.add_run(f"[{alt}]")
+                image_bytes = None
+                if url.startswith("data:image/"):
+                    # Base64 data URI
+                    try:
+                        _, data = url.split(",", 1)
+                        image_bytes = base64.b64decode(data)
+                    except Exception:
+                        pass
+                elif url.startswith(("http://", "https://")):
+                    image_bytes = self._download_image(url)
+                if image_bytes:
+                    self._add_image_to_paragraph(para, image_bytes, alt)
+                    if stats:
+                        stats["images"] += 1
+                else:
+                    para.add_run(f"[{alt}]")
 
             elif child_type == "linebreak":
                 para.add_run().add_break()

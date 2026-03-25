@@ -106,15 +106,13 @@ def _normalize_list_item(item: dict) -> dict:
 
 
 def _normalize_table(node: dict) -> dict:
-    """Normalize a table node."""
+    """Normalize a table node, preserving inline formatting in cells."""
     rows = []
     for child in node.get("children", []):
         if child.get("type") == "table_head":
-            # table_head children are cells directly (one header row)
             cells = []
             for cell in child.get("children", []):
-                cell_text = _extract_text(cell.get("children", []))
-                cells.append(cell_text)
+                cells.append(_extract_inline(cell.get("children", [])))
             rows.append({
                 "type": "table_row",
                 "cells": cells,
@@ -124,8 +122,7 @@ def _normalize_table(node: dict) -> dict:
             for row in child.get("children", []):
                 cells = []
                 for cell in row.get("children", []):
-                    cell_text = _extract_text(cell.get("children", []))
-                    cells.append(cell_text)
+                    cells.append(_extract_inline(cell.get("children", [])))
                 rows.append({
                     "type": "table_row",
                     "cells": cells,

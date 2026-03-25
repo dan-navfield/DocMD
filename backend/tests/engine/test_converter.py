@@ -109,6 +109,30 @@ class TestTableConversion:
         assert tables[-1][1] == ["1", "2"]
 
 
+class TestTableCellFormatting:
+    def test_bold_in_table_cell(self, converter, simple_template_bytes, basic_mapping_rules):
+        md = "| **bold** | normal |\n|---|---|\n| a | b |"
+        docx_bytes, _ = converter.convert(md, simple_template_bytes, basic_mapping_rules)
+        doc = Document(io.BytesIO(docx_bytes))
+        for table in doc.tables:
+            cell = table.rows[0].cells[0]
+            bold_runs = [r for r in cell.paragraphs[0].runs if r.bold]
+            assert len(bold_runs) > 0, "Expected bold run in header cell"
+            return
+        pytest.fail("No table found")
+
+    def test_link_in_table_cell(self, converter, simple_template_bytes, basic_mapping_rules):
+        md = "| [link](https://x.com) |\n|---|\n| data |"
+        docx_bytes, _ = converter.convert(md, simple_template_bytes, basic_mapping_rules)
+        doc = Document(io.BytesIO(docx_bytes))
+        from docx.oxml.ns import qn
+        for table in doc.tables:
+            cell_xml = table.rows[0].cells[0]._tc.xml
+            assert "hyperlink" in cell_xml, "Expected hyperlink in table cell"
+            return
+        pytest.fail("No table found")
+
+
 class TestBlockquoteConversion:
     def test_blockquote_rendered(self, converter, simple_template_bytes, basic_mapping_rules):
         md = "> quoted text"
@@ -236,3 +260,98 @@ class TestConversionReport:
         md = "# Title\n\nParagraph\n\n- List"
         _, report = converter.convert(md, simple_template_bytes, basic_mapping_rules)
         assert report["elements_processed"] == sum(report["stats"].values())
+
+
+class TestTableOfContents:
+    def test_toc_inserted_when_mapping_enabled(self, converter, simple_template_bytes, basic_mapping_rules):
+        rules = {**basic_mapping_rules, "toc": True}
+        md = "# Chapter 1\n\nContent\n\n## Section 1.1\n\nMore"
+        docx_bytes, _ = converter.convert(md, simple_template_bytes, rules)
+        doc = Document(io.BytesIO(docx_bytes))
+        body_xml = doc.element.body.xml
+        assert "TOC" in body_xml, "No TOC field code found in document body"
+        assert "fldChar" in body_xml, "No field character elements found"
+
+    def test_toc_not_inserted_when_disabled(self, converter, simple_template_bytes, basic_mapping_rules):
+        md = "# Chapter 1\n\nContent"
+        docx_bytes, _ = converter.convert(md, simple_template_bytes, basic_mapping_rules)
+        doc = Document(io.BytesIO(docx_bytes))
+        body_xml = doc.element.body.xml
+        assert "TOC" not in body_xml
+
+    def test_toc_update_fields_set(self, converter, simple_template_bytes, basic_mapping_rules):
+        rules = {**basic_mapping_rules, "toc": True}
+        md = "# Title\n\n## Section"
+        docx_bytes, _ = converter.convert(md, simple_template_bytes, rules)
+        doc = Document(io.BytesIO(docx_bytes))
+        settings_xml = doc.settings.element.xml
+        assert "updateFields" in settings_xml
+
+
+class TestHyperlinks:
+    def test_link_is_clickable(self, converter, simple_template_bytes, basic_mapping_rules):
+        md = "Visit [Example](https://example.com) for info"
+        docx_bytes, _ = converter.convert(md, simple_template_bytes, basic_mapping_rules)
+        doc = Document(io.BytesIO(docx_bytes))
+        from docx.oxml.ns import qn
+        hyperlinks = []
+        for para in doc.paragraphs:
+            for elem in para._p:
+                if elem.tag == qn("w:hyperlink"):
+                    hyperlinks.append(elem)
+        assert len(hyperlinks) >= 1, "No w:hyperlink element found"
+        r_id = hyperlinks[0].get(qn("r:id"))
+        assert r_id is not None, "Hyperlink missing r:id relationship"
+
+    def test_link_text_preserved(self, converter, simple_template_bytes, basic_mapping_rules):
+        md = "Click [here](https://example.com)"
+        docx_bytes, _ = converter.convert(md, simple_template_bytes, basic_mapping_rules)
+        paras = read_docx_paragraphs(docx_bytes)
+        texts = [p["text"] for p in paras]
+        assert any("here" in t for t in texts)
+
+    def test_multiple_links_in_paragraph(self, converter, simple_template_bytes, basic_mapping_rules):
+        md = "See [A](https://a.com) and [B](https://b.com)"
+        docx_bytes, _ = converter.convert(md, simple_template_bytes, basic_mapping_rules)
+        doc = Document(io.BytesIO(docx_bytes))
+        from docx.oxml.ns import qn
+        hyperlinks = []
+        for para in doc.paragraphs:
+            for elem in para._p:
+                if elem.tag == qn("w:hyperlink"):
+                    hyperlinks.append(elem)
+        assert len(hyperlinks) >= 2
+
+
+class TestImageInsertion:
+    def test_inline_image_from_bytes(self, converter, simple_template_bytes, basic_mapping_rules):
+        """Test the internal _add_image_to_paragraph method."""
+        import base64
+        tiny_png = base64.b64decode(
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGP4z8BQDwAEgAF/pooBPQAAAABJRU5ErkJggg=="
+        )
+        doc = Document(io.BytesIO(simple_template_bytes))
+        para = doc.add_paragraph()
+        converter._add_image_to_paragraph(para, tiny_png, "test", width_inches=2.0)
+        from docx.oxml.ns import qn
+        drawings = para._p.findall(f".//{qn('w:drawing')}")
+        assert len(drawings) >= 1, "No drawing element found"
+
+    def test_image_placeholder_for_failed_download(self, converter, simple_template_bytes, basic_mapping_rules):
+        md = "![broken](https://nonexistent.invalid/img.png)"
+        docx_bytes, _ = converter.convert(md, simple_template_bytes, basic_mapping_rules)
+        paras = read_docx_paragraphs(docx_bytes)
+        texts = [p["text"] for p in paras]
+        assert any("broken" in t for t in texts)
+
+    def test_base64_data_uri_image(self, converter, simple_template_bytes, basic_mapping_rules):
+        """Test base64 data URI images are inserted."""
+        # 1x1 red PNG as data URI
+        data_uri = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGP4z8BQDwAEgAF/pooBPQAAAABJRU5ErkJggg=="
+        md = f"![red pixel]({data_uri})"
+        docx_bytes, report = converter.convert(md, simple_template_bytes, basic_mapping_rules)
+        doc = Document(io.BytesIO(docx_bytes))
+        from docx.oxml.ns import qn
+        drawings = doc.element.body.findall(f".//{qn('w:drawing')}")
+        assert len(drawings) >= 1, "No drawing element found for base64 image"
+        assert report["stats"]["images"] >= 1

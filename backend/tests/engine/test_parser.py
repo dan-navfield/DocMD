@@ -119,8 +119,21 @@ class TestTables:
         rows = ast[0]["rows"]
         assert len(rows) == 2
         assert rows[0]["is_header"] is True
-        assert rows[0]["cells"] == ["A", "B"]
-        assert rows[1]["cells"] == ["1", "2"]
+        # Cells are now lists of inline nodes
+        cell_a = rows[0]["cells"][0]
+        assert isinstance(cell_a, list)
+        assert cell_a[0]["type"] == "text"
+        assert cell_a[0]["text"] == "A"
+
+
+class TestTableCellFormatting:
+    def test_bold_in_cell(self):
+        md = "| **bold** | normal |\n|---|---|\n| a | b |"
+        ast = parse_markdown(md)
+        header_cells = ast[0]["rows"][0]["cells"]
+        first_cell = header_cells[0]
+        assert isinstance(first_cell, list)
+        assert any(n.get("type") == "strong" for n in first_cell)
 
 
 class TestBlockquotes:
