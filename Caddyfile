@@ -1,0 +1,4 @@
+https://mddoc.dev {
+    tls certs/mddoc.dev.pem certs/mddoc.dev-key.pem
+    reverse_proxy localhost:3000
+}
