@@ -5,19 +5,28 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  workers: process.env.CI ? 1 : 3,
   reporter: "html",
   use: {
-    baseURL: process.env.E2E_BASE_URL || "https://mddoc.dev",
+    baseURL: process.env.E2E_BASE_URL || "https://app.mddoc.app",
     trace: "on-first-retry",
     screenshot: "only-on-failure",
-    // Trust the local mkcert CA
     ignoreHTTPSErrors: true,
   },
   projects: [
+    // Setup: log in once and save session
+    {
+      name: "setup",
+      testMatch: /auth\.setup\.ts/,
+    },
+    // All tests reuse the authenticated session
     {
       name: "chromium",
-      use: { ...devices["Desktop Chrome"] },
+      use: {
+        ...devices["Desktop Chrome"],
+        storageState: "e2e/.auth/session.json",
+      },
+      dependencies: ["setup"],
     },
   ],
 });

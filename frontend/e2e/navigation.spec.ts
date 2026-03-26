@@ -1,11 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { login } from "./helpers/auth";
-
 test.describe("Navigation", () => {
-  test.beforeEach(async ({ page }) => {
-    await login(page);
-  });
-
   test("Top bar tabs navigate to correct pages", async ({ page }) => {
     await page.goto("/documents");
 
@@ -40,8 +34,8 @@ test.describe("Navigation", () => {
   test("Sidebar shows on documents page", async ({ page }) => {
     await page.goto("/documents");
     await expect(page.getByText("Smart Views")).toBeVisible();
-    await expect(page.getByText("Projects")).toBeVisible();
-    await expect(page.getByText("Tags")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Projects" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Tags" })).toBeVisible();
   });
 
   test("Sidebar smart views filter documents", async ({ page }) => {

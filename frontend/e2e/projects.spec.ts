@@ -1,11 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { login } from "./helpers/auth";
-
 test.describe("Projects", () => {
-  test.beforeEach(async ({ page }) => {
-    await login(page);
-  });
-
   test("Projects page loads", async ({ page }) => {
     await page.goto("/projects");
     await expect(

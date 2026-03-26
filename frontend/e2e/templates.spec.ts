@@ -1,11 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { login } from "./helpers/auth";
-
 test.describe("Templates", () => {
-  test.beforeEach(async ({ page }) => {
-    await login(page);
-  });
-
   test("Templates page loads and shows list or empty state", async ({
     page,
   }) => {

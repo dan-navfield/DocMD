@@ -1,12 +1,7 @@
 import { test, expect } from "@playwright/test";
-import { login } from "./helpers/auth";
 import { createDocument } from "./helpers/seed";
 
 test.describe("Conversion flow", () => {
-  test.beforeEach(async ({ page }) => {
-    await login(page);
-  });
-
   test("Edit markdown and save", async ({ page }) => {
     await createDocument(page);
 
@@ -17,11 +12,20 @@ test.describe("Conversion flow", () => {
     const editor = page.locator(".w-md-editor");
     await expect(editor).toBeVisible({ timeout: 5000 });
 
+    // Type something to create unsaved changes
+    const textarea = page.locator(".w-md-editor textarea").first();
+    await textarea.focus();
+    await textarea.press("End");
+    await textarea.type("\n\nEdited by E2E test");
+
+    // Wait for unsaved indicator
+    await expect(page.getByText(/unsaved/i)).toBeVisible({ timeout: 5000 });
+
     // Click save
     await page.getByRole("button", { name: /save/i }).first().click();
 
     // Should show saved indicator
-    await expect(page.getByText(/saved/i)).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText(/saved/i)).toBeVisible({ timeout: 10000 });
   });
 
   test("Convert document with template and mapping", async ({ page }) => {
@@ -54,9 +58,10 @@ test.describe("Conversion flow", () => {
     if (await convertBtn.isEnabled()) {
       await convertBtn.click();
 
-      // Should either show post-convert view or error toast
+      // Should either show post-convert view, DOCX Preview label, or error toast
       await Promise.race([
         page.waitForSelector('[class*="docx-preview"]', { timeout: 30000 }),
+        page.waitForSelector('text=DOCX Preview', { timeout: 30000 }),
         page.waitForSelector('[data-sonner-toast]', { timeout: 30000 }),
       ]);
     }

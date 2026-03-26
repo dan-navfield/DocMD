@@ -1,36 +1,36 @@
 import { test, expect } from "@playwright/test";
-import { login } from "./helpers/auth";
-
 test.describe("Settings", () => {
-  test.beforeEach(async ({ page }) => {
-    await login(page);
-  });
-
-  test("Settings page loads with sections", async ({ page }) => {
+  test("Settings page loads with profile section", async ({ page }) => {
     await page.goto("/settings");
-    // Should show at least profile or LLM settings section
+    await expect(page.getByRole("heading", { name: "Profile" })).toBeVisible({
+      timeout: 10000,
+    });
     await expect(
-      page.getByText(/profile|settings|api|llm/i).first()
-    ).toBeVisible({ timeout: 10000 });
+      page.getByRole("heading", { name: "Personal Information" })
+    ).toBeVisible();
   });
 
-  test("LLM provider section is visible", async ({ page }) => {
+  test("Settings sub-nav has all sections", async ({ page }) => {
     await page.goto("/settings");
+    await expect(page.getByRole("button", { name: "Profile" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Billing" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Settings" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Fonts" })).toBeVisible();
     await expect(
-      page.getByText(/llm|ai provider|language model/i).first()
-    ).toBeVisible({ timeout: 10000 });
+      page.getByRole("button", { name: "API Keys" })
+    ).toBeVisible();
   });
 
-  test("API keys section is visible", async ({ page }) => {
+  test("API Keys section shows key management", async ({ page }) => {
     await page.goto("/settings");
-    await expect(
-      page.getByText(/api key/i).first()
-    ).toBeVisible({ timeout: 10000 });
+    await page.getByRole("button", { name: "API Keys" }).click();
+    await expect(page.getByText(/api key/i).first()).toBeVisible({
+      timeout: 10000,
+    });
   });
 
-  test("Generate API key button exists", async ({ page }) => {
+  test("Sign out button is visible", async ({ page }) => {
     await page.goto("/settings");
-    const genBtn = page.getByRole("button", { name: /generate|create|new.*key/i });
-    await expect(genBtn.first()).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText("Sign out")).toBeVisible();
   });
 });

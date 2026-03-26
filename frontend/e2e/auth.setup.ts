@@ -1,10 +1,10 @@
-import { Page, expect } from "@playwright/test";
+import { test as setup } from "@playwright/test";
 
 /**
- * Log in via the Supabase email/password form.
- * Expects E2E_TEST_EMAIL and E2E_TEST_PASSWORD env vars to be set.
+ * Global setup: log in once and save the session to a file.
+ * All other tests reuse this session via storageState.
  */
-export async function login(page: Page) {
+setup("authenticate", async ({ page }) => {
   const email = process.env.E2E_TEST_EMAIL;
   const password = process.env.E2E_TEST_PASSWORD;
 
@@ -16,22 +16,15 @@ export async function login(page: Page) {
 
   await page.goto("/login");
   await page.waitForLoadState("networkidle");
-
-  // Placeholders from the actual login page
   await page.getByPlaceholder("you@company.com").fill(email);
   await page.getByPlaceholder("Enter your password").fill(password);
   await page.getByRole("button", { name: /sign in/i }).click();
 
-  // Wait for redirect away from login (generous timeout for Supabase auth rate limits)
+  // Wait for redirect away from login
   await page.waitForURL((url) => !url.pathname.includes("/login"), {
     timeout: 30000,
   });
-}
 
-/**
- * Assert the user is on an authenticated page (not login/signup).
- */
-export async function assertAuthenticated(page: Page) {
-  await expect(page).not.toHaveURL(/\/login/);
-  await expect(page).not.toHaveURL(/\/signup/);
-}
+  // Save the authenticated session
+  await page.context().storageState({ path: "e2e/.auth/session.json" });
+});
